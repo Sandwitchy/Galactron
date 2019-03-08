@@ -156,14 +156,14 @@
 
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Paramètre</a></li>
-                                <li><a href="#">Se déconnecter</a></li>
+                                <li><a href="#">Paramètres</a></li>
+                                <li><a href="{{ path('app_logout') }}">Se déconnecter</a></li>
                             </ul>
                         </li>
                         {% else %}
                         <li>
                             <div class='btn-group'>
-                           <a class='btn btn-danger' href="">
+                           <a class='btn btn-danger' href="{{ path('app_login') }}">
                                <p><i class='nc-icon nc-single-02'></i>Se connecter</p>
                             </a>
                             <a class='btn btn-danger' href="{{ path('register_user') }}">
