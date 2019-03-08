@@ -1,14 +1,27 @@
 security:
+    encoders:
+        App\Entity\User:
+            algorithm: bcrypt
+    role_hierarchy:
+        ROLE_NINJA:  [ROLE_CREATOR, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_CREATOR: [ROLE_USER, ROLE_CREATOR]
+        ROLE_USER : ROLE_USER
+        
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory: { memory: ~ }
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             anonymous: true
-
+            logout:
+                path:   app_logout
             # activate different ways to authenticate
 
             # http_basic: true

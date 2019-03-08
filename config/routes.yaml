@@ -1,3 +1,6 @@
 #index:
 #    path: /
 #    controller: App\Controller\DefaultController::index
+register:
+    path: /inscription
+    controller: App\Controller\UserController::register

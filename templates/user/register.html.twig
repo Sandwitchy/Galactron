@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="col-md-12 offset-md-1">
+            <div class="card">
+
+                <div class="header">
+                    <h4 class="title">Inscription</h4>
+                </div>
+                {{ form_start(form) }}
+                <form action='#' method="POST">
+                <div class="content">
+                    <h5>Email</h5>
+                    <div class='control'>
+                        {{ form_widget(form.email)}}
+                    </div>
+                    <h5>Pseudo</h5>
+                    <div class='control'>
+                        {{ form_widget(form.username)}}
+                    </div>
+                    <h5>Mot de passe</h5>
+                    <div class='control'>
+                        {{ form_widget(form.plainPassword.first)}}
+                    </div>
+                    <h5>Confirmer le mot de passe</h5>
+                    <div class='control'>
+                        {{ form_widget(form.plainPassword.second)}}
+                    </div>
+                    
+                </div>
+                <div class='footer'>
+                    <div class='container-fluid'>
+                        <button class='btn btn-success' type='submit'>S'inscrire</button>
+                    </div>
+                </div>
+                {{ form_widget(form._token)}}
+                {{ form_end(form) }}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
