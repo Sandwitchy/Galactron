@@ -11,6 +11,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\HasLifecycleCallbacks() 
  */
 class User implements UserInterface
 {
@@ -72,10 +73,16 @@ class User implements UserInterface
      */
     private $univers;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\UserUnivers", mappedBy="User")
+     */
+    private $userUnivers;
+
     public function __construct()
     {
         $this->roles = array('ROLE_USER');
         $this->univers = new ArrayCollection();
+        $this->userUnivers = new ArrayCollection();
     }
 
     // other properties and methods
@@ -206,6 +213,34 @@ class User implements UserInterface
             if ($univer->getCreator() === $this) {
                 $univer->setCreator(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|UserUnivers[]
+     */
+    public function getUserUnivers(): Collection
+    {
+        return $this->userUnivers;
+    }
+
+    public function addUserUniver(UserUnivers $userUniver): self
+    {
+        if (!$this->userUnivers->contains($userUniver)) {
+            $this->userUnivers[] = $userUniver;
+            $userUniver->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserUniver(UserUnivers $userUniver): self
+    {
+        if ($this->userUnivers->contains($userUniver)) {
+            $this->userUnivers->removeElement($userUniver);
+            $userUniver->removeUser($this);
         }
 
         return $this;

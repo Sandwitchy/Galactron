@@ -5,10 +5,11 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\InheritanceType("JOINED")
  * @ORM\Entity(repositoryClass="App\Repository\DefaultObjectRepository")
  * @ORM\HasLifecycleCallbacks() 
  */
-abstract class DefaultObject
+class DefaultObject
 {
     /**
      * @ORM\Id()

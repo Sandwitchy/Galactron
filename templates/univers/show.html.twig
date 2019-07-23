@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    <div class="container-fluid">
+       {{universeName}}
+       <img style="width:30px; border-radius:50%; text-transform:uppercase;" src="{{ asset('image-user/'~ universeLogo) }}" alt="..."/>
+    </div>
+{% endblock %}
