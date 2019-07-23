@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -12,14 +14,22 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  */
 class User implements UserInterface
 {
-
-     /**
-     * @ORM\Id
+    /**
+     * @ORM\Id()
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime",nullable=true)
+     */
+    private $updatedAt;
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank()
@@ -57,13 +67,51 @@ class User implements UserInterface
      */
     private $image;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Univers", mappedBy="creator")
+     */
+    private $univers;
+
     public function __construct()
     {
         $this->roles = array('ROLE_USER');
+        $this->univers = new ArrayCollection();
     }
 
     // other properties and methods
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedAt(): self
+    {
+        $this->createdAt = new \DateTime();
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setUpdatedAt(): self
+    {
+        $this->updatedAt = new \DateTime();
+        return $this;
+    }
+    
     public function getEmail()
     {
         return $this->email;
@@ -128,6 +176,37 @@ class User implements UserInterface
     public function setImage(string $image): self
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Univers[]
+     */
+    public function getUnivers(): Collection
+    {
+        return $this->univers;
+    }
+
+    public function addUniver(Univers $univer): self
+    {
+        if (!$this->univers->contains($univer)) {
+            $this->univers[] = $univer;
+            $univer->setCreator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUniver(Univers $univer): self
+    {
+        if ($this->univers->contains($univer)) {
+            $this->univers->removeElement($univer);
+            // set the owning side to null (unless already changed)
+            if ($univer->getCreator() === $this) {
+                $univer->setCreator(null);
+            }
+        }
 
         return $this;
     }

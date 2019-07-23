@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="col-md-12 offset-md-1">
+            <div class="card">
+
+                <div class="header">
+                    <h4 class="title">Créer un nouveau univers</h4>
+                </div>
+                <form action='#' method="POST">
+                <div class="content">
+                    <h5>Nom *</h5>
+                    <div class='control'>
+                       <input type='text' name='name' class='form-control'>
+                    </div>
+                    <h5>Image</h5>
+                    <div class='control'>
+                        <input type='file' name='image' class='form-control'>
+                    </div>                    
+                </div>
+                <div class='footer'>
+                    <div class='container-fluid'>
+                        <button class='btn btn-success' type='submit'>Créer</button>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

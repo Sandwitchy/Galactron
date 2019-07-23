@@ -56,10 +56,19 @@
                         <i class="fa fa-globe"></i>
                         <p>Accueil</p>
                     </a>
-                    <a href=''>
-                        <i class='fa fa-plus'></i>
-                        <p>Nouvel Univers</p>
-                    </a>
+                    
+                    {% if is_granted('IS_AUTHENTICATED_FULLY')%}
+                        {% for univers in app.user.univers %}
+                        <a class='row' href="">
+                            <img style="width:30px; border-radius:50%; text-transform:uppercase;" src="{{ asset('image-user/'~ univers.image) }}" alt="..."/>
+                            {{ univers.name }}
+                        </a>
+                        {% endfor %}
+                        <a href="{{path('create_universe')}}">
+                            <i class='fa fa-plus'></i>
+                            <p>Nouveau Univers</p>
+                        </a>
+                    {% endif %}
                 </li>
             </ul>
     	</div>
