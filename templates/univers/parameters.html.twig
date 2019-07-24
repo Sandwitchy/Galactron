@@ -17,54 +17,92 @@
         };
     </script>
     <div class="content">
-            {% for message in app.flashes('success') %}
-                <div class="alert-success">
-                    {{ message }}
-                </div>
-            {% endfor %}
-            <div class="container-fluid">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="header">
-                                <div class='row'>
-                                    <div class='col-md-3'>
-                                        <img style="width:100px; border-radius:10%; text-transform:uppercase;" src="{{ asset('image-user/'~ universe.image) }}" alt="..."/>
-                                    </div>
-                                    <div class='col-md-9'>
-                                        <h4 class="title">{{universe.name}}/Paramètres</h4>
-                                    </div>
-                                </div>
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="header">
+                        <div class='row'>
+                            <div class='col-md-3'>
+                                <img style="width:100px; border-radius:10%; text-transform:uppercase;" src="{{ asset('image-user/'~ universe.image) }}" alt="..."/>
                             </div>
-                            <div class="content">
-                                    <form method='post' enctype="multipart/form-data">
-                                        <div class='col-md-6'>
-                                            <div class="form-group">
-                                                <label>Nom de l'univers</label>
-                                                <input type="text" name='name' class="form-control" placeholder="Nom de l'univers" value="{{ universe.name }}">
-                                            </div>
-                                        </div>
-                                        <div class='col-md-6'>
-                                            <div class="form-group">
-                                                <label>Logo de l'univers</label><br>
-                                                <div class='row'>
-                                                    <div class='col-md-6'>
-                                                        <input type="file" name='image' class='form-control' id="upload-file" onchange='openFile(event)' />
-                                                    </div>
-                                                    <div class='col-md-6'>
-                                                        <img id='image-preview' style='width:100px; border-radius:10%; text-transform:uppercase;' alt=''>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class='btn-group'>
-                                            <button type='submit' class='btn btn-success'>Enregistrer</button>
-                                            <a href="{{ path('univers_show', {'id': universe.id}) }}" class='btn btn-secondary'>Retour</a>
-                                        </div>
-                                    </form>
+                            <div class='col-md-7'>
+                                <h4 class="title">{{universe.name}}/Paramètres</h4>
+                            </div>
+                            <div class='col-md-2'>
+                                <a href='{{ path('univers_gestion', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-clipboard"></i></a>
                             </div>
                         </div>
                     </div>
+                    <div class="content">
+                        <div class="container-fluid">
+                            <form method='post' enctype="multipart/form-data">
+                                <div class='col-md-6'>
+                                    <div class="form-group">
+                                        <label>Nom de l'univers</label>
+                                        <input type="text" name='name' class="form-control" placeholder="Nom de l'univers" value="{{ universe.name }}">
+                                    </div>
+                                </div>
+                                <div class='col-md-6'>
+                                    <div class="form-group">
+                                        <label>Logo de l'univers</label><br>
+                                        <div class='row'>
+                                            <div class='col-md-6'>
+                                                <input type="file" name='image' class='form-control' id="upload-file" onchange='openFile(event)' />
+                                            </div>
+                                            <div class='col-md-6'>
+                                                <img id='image-preview' style='width:100px; border-radius:10%; text-transform:uppercase;' alt=''>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class='btn-group'>
+                                    <button type='submit' class='btn btn-success'>Enregistrer</button>
+                                    <a href="{{ path('univers_show', {'id': universe.id}) }}" class='btn btn-secondary'>Retour</a>
+                                </div>
+                            </form>
+                        </div>
+                        <div class='col-md'>
+                            <h3>Catégories</h3>
+                            <div class='container-fluid'>
+                                <div class='col-md-6'>
+                                    <form method='post'>
+                                        <label>Ajouter une catégorie</label>
+                                    <div class='row'>
+                                        <div class='col-md-4'>
+                                            <input type='text' name='contentTypeName' class='form-control'>
+                                        </div>
+                                        <div class='col-md-2'>
+                                            <button type='submit' class='btn btn-success'><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                    </form>
+                                    <table class='table table-striped'>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Options</th>
+                                        {% for contentType in universe.contentTypes %}
+                                            <tr>
+                                                <td>{{contentType.name}}</td>
+                                                <td></td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan='2'>Aucune catégorie créé...</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 {% endblock %}

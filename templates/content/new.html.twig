@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block script %}
+    <script>
+        // script de prévisualisation d'image
+        var openFile = function(event) {
+            var input = event.target;
+
+            var reader = new FileReader();
+            reader.onload = function(){
+            var dataURL = reader.result;
+            var output = document.getElementById('image-preview');
+            output.src = dataURL;
+            };
+            reader.readAsDataURL(input.files[0]);
+        };
+        
+    $.switcher('input[type=checkbox]'); 
+    $('#summernote').summernote({
+        height: 300,                 // set editor height
+        minHeight: null,             // set minimum height of editor
+        maxHeight: null,             // set maximum height of editor
+        focus: true                  // set focus to editable area after initializing summernote
+    });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="header">
+                <div class='row'>
+                    <div class='col-md-3'>
+                        <img style="width:100px; border-radius:10%; text-transform:uppercase;" src="{{ asset('image-user/'~ universe.image) }}" alt="..."/>
+                    </div>
+                    <div class='col-md-7'>
+                        <h4 class="title">{{universe.name}}/Nouveau contenu</h4>
+                    </div>
+                    <div class='col-md-2 btn-group'>
+                        {% if isCreator == true %}
+                            <a href='{{ path('univers_parameters', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-cog"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+            <form method="post" enctype="multipart/form-data">
+                <div class='row'>
+                    <div class='col-md-8'>
+                        <div class="form-group">
+                            <label>Titre</label>
+                            <input type="text" name='name' class="form-control" required placeholder="Titre">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" name='description' class="form-control" placeholder="Description">
+                        </div>
+                        <div class="form-group">
+                            <label>Image</label><br>
+                            <div class='row'>
+                                <div class='col-md-6'>
+                                    <input type="file" name='image' class='form-control' id="upload-file" onchange='openFile(event)' />
+                                </div>
+                                <div class='col-md-6'>
+                                    <img id='image-preview' style='width:100px; border-radius:10%; text-transform:uppercase;' alt=''>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='col-md-4'>
+                        <div class="form-group">
+                            <label>Rendre le contenu privé ?</label><br>
+                            <input type="checkbox" name='isPrivate' checked class="form-control" >
+                        </div>
+                        <div class="form-group">
+                            <label>Catégorie du contenu</label>
+                            <select name='contentType' class='form-control'>
+                                <option>Sans catégorie</option>
+                                {% for contentType in universe.contentTypes %}
+                                    <option value="{{contentType.id}}">{{contentType.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class="form-group">
+                    <textarea id="summernote" name="content"></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button type='submit' class="btn btn-success"><i class="fa fa-save"></i></button>
+                    <a href="{{ path('univers_gestion', {'id': universe.id}) }}" class='btn btn-secondary'>Retour</a>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

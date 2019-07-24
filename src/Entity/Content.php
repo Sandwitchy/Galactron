@@ -43,7 +43,7 @@ class Content extends DefaultObject
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ContentType", inversedBy="contents")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $contentType;
 

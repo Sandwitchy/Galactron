@@ -22,11 +22,21 @@ class ContentType extends DefaultObject
      */
     private $contents;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Univers", inversedBy="contentTypes")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $Univers;
+
     public function __construct()
     {
         $this->contents = new ArrayCollection();
     }
 
+    public function __toString()
+    {
+        return $this->name;
+    }
     public function getName(): ?string
     {
         return $this->name;
@@ -66,6 +76,18 @@ class ContentType extends DefaultObject
                 $content->setContentType(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUnivers(): ?Univers
+    {
+        return $this->Univers;
+    }
+
+    public function setUnivers(?Univers $Univers): self
+    {
+        $this->Univers = $Univers;
 
         return $this;
     }

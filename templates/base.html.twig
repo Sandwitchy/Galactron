@@ -13,7 +13,8 @@
 
     <!-- Bootstrap core CSS     -->
     <link href="{{ asset('light-bootstrap/assets/css/bootstrap.min.css')}}" rel="stylesheet" />
-
+    <!--    Switcher CSS     -->
+    <link href="{{ asset('CSS/switcher.css')}}" rel="stylesheet" />
     <!-- Animation library for notifications   -->
     <link href="{{ asset('light-bootstrap/assets/css/animate.min.css')}}" rel="stylesheet"/>
 
@@ -29,7 +30,8 @@
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
     <link href="{{ asset('light-bootstrap/assets/css/pe-icon-7-stroke.css')}}" rel="stylesheet" />
-
+    <!-- summernote css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-lite.css" rel="stylesheet">
 </head>
 <body>
 
@@ -213,4 +215,12 @@
 	<!-- Light Bootstrap Table DEMO methods, don't include it in your project! -->
 	<script src="{{ asset('light-bootstrap/assets/js/demo.js')}}"></script>
 
+    <!-- switcher JS -->
+	<script src="{{ asset('JS/jquery.switcher.js')}}"></script>
+    <!-- summernote JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-lite.js"></script>
+
+    {% block script %}
+    {% endblock %}
+    
 </html>

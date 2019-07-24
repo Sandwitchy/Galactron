@@ -38,10 +38,16 @@ class Univers extends DefaultObject
      */
     private $contents;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ContentType", mappedBy="Univers", orphanRemoval=true)
+     */
+    private $contentTypes;
+
     public function __construct()
     {
         $this->userUnivers = new ArrayCollection();
         $this->contents = new ArrayCollection();
+        $this->contentTypes = new ArrayCollection();
     }
     public function getId(): ?int
     {
@@ -139,6 +145,37 @@ class Univers extends DefaultObject
             // set the owning side to null (unless already changed)
             if ($content->getUnivers() === $this) {
                 $content->setUnivers(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ContentType[]
+     */
+    public function getContentTypes(): Collection
+    {
+        return $this->contentTypes;
+    }
+
+    public function addContentType(ContentType $contentType): self
+    {
+        if (!$this->contentTypes->contains($contentType)) {
+            $this->contentTypes[] = $contentType;
+            $contentType->setUnivers($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContentType(ContentType $contentType): self
+    {
+        if ($this->contentTypes->contains($contentType)) {
+            $this->contentTypes->removeElement($contentType);
+            // set the owning side to null (unless already changed)
+            if ($contentType->getUnivers() === $this) {
+                $contentType->setUnivers(null);
             }
         }
 

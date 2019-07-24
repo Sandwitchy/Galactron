@@ -102,6 +102,9 @@ class User implements UserInterface
         return $this->createdAt;
     }
 
+    public function __toString(){
+        return $this->username;
+    }
     /**
      * @ORM\PrePersist
      */
