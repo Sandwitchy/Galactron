@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    <script>
+        // script de prévisualisation d'image
+         var openFile = function(event) {
+            var input = event.target;
+
+            var reader = new FileReader();
+            reader.onload = function(){
+            var dataURL = reader.result;
+            var output = document.getElementById('image-preview');
+            output.src = dataURL;
+            };
+            reader.readAsDataURL(input.files[0]);
+        };
+    </script>
+    <div class="content">
+            {% for message in app.flashes('success') %}
+                <div class="alert-success">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <div class="container-fluid">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="header">
+                                <div class='row'>
+                                    <div class='col-md-3'>
+                                        <img style="width:100px; border-radius:10%; text-transform:uppercase;" src="{{ asset('image-user/'~ universe.image) }}" alt="..."/>
+                                    </div>
+                                    <div class='col-md-9'>
+                                        <h4 class="title">{{universe.name}}/Paramètres</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content">
+                                    <form method='post' enctype="multipart/form-data">
+                                        <div class='col-md-6'>
+                                            <div class="form-group">
+                                                <label>Nom de l'univers</label>
+                                                <input type="text" name='name' class="form-control" placeholder="Nom de l'univers" value="{{ universe.name }}">
+                                            </div>
+                                        </div>
+                                        <div class='col-md-6'>
+                                            <div class="form-group">
+                                                <label>Logo de l'univers</label><br>
+                                                <div class='row'>
+                                                    <div class='col-md-6'>
+                                                        <input type="file" name='image' class='form-control' id="upload-file" onchange='openFile(event)' />
+                                                    </div>
+                                                    <div class='col-md-6'>
+                                                        <img id='image-preview' style='width:100px; border-radius:10%; text-transform:uppercase;' alt=''>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class='btn-group'>
+                                            <button type='submit' class='btn btn-success'>Enregistrer</button>
+                                            <a href="{{ path('univers_show', {'id': universe.id}) }}" class='btn btn-secondary'>Retour</a>
+                                        </div>
+                                    </form>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+{% endblock %}

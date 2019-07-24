@@ -78,11 +78,17 @@ class User implements UserInterface
      */
     private $userUnivers;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Content", mappedBy="author")
+     */
+    private $contents;
+
     public function __construct()
     {
         $this->roles = array('ROLE_USER');
         $this->univers = new ArrayCollection();
         $this->userUnivers = new ArrayCollection();
+        $this->contents = new ArrayCollection();
     }
 
     // other properties and methods
@@ -241,6 +247,37 @@ class User implements UserInterface
         if ($this->userUnivers->contains($userUniver)) {
             $this->userUnivers->removeElement($userUniver);
             $userUniver->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Content[]
+     */
+    public function getContents(): Collection
+    {
+        return $this->contents;
+    }
+
+    public function addContent(Content $content): self
+    {
+        if (!$this->contents->contains($content)) {
+            $this->contents[] = $content;
+            $content->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContent(Content $content): self
+    {
+        if ($this->contents->contains($content)) {
+            $this->contents->removeElement($content);
+            // set the owning side to null (unless already changed)
+            if ($content->getAuthor() === $this) {
+                $content->setAuthor(null);
+            }
         }
 
         return $this;
