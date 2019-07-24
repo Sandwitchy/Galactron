@@ -1,6 +1,12 @@
 {% extends 'base.html.twig' %}
 
-
+{% block script %}
+<script>
+    $(document).ready(function() {
+        $('#content').DataTable();
+    } );
+</script>
+{% endblock %}
 {% block body %}
 <div class="container-fluid">
     <div class="col-md-12">
@@ -27,7 +33,49 @@
                 </div>
             </div>
             <div class="content">
-                   
+                <table id='content' class="display">
+                    <thead>
+                        <tr>
+                            <td>Titre</td>
+                            <td>Catégorie</td>
+                            <td>Auteur</td>
+                            <td>Public ?</td>
+                            <td>Date création</td>
+                            <td>Options</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for content in universe.contents %}
+                            <tr>
+                                <td>
+                                    <img style="width:30px; border-radius:50%; text-transform:uppercase;" src="{{ asset('image-user/'~ content.image) }}" alt="..."/>
+                                    {{content.name}}
+                                </td>
+                                <td>{% if not content.contentType %}
+                                        Aucune catégorie
+                                    {% else %}
+                                        {{content.contentType}}
+                                    {% endif %}
+                                </td>
+                                <td>{{ content.author }}</td>
+                                <td>
+                                    {% if content.isPrivate == false %}
+                                        <button class="btn btn-success" ><i class="fa fa-thumbs-up"></i></button>
+                                    {% else %}
+                                        <button class="btn btn-danger" ><i class="fa fa-thumbs-down"></i></button>
+                                    {% endif %}
+                                </td>
+                                <td>{{ content.createdAt | date("d/m/Y")}} </td>
+                                <td>
+                                    <div class='btn-group'>
+                                        <a href="" class="btn btn-info"><i class="fa fa-edit"></i></a>
+                                        <a href="" class="btn btn-secondary"><i class="fa fa-eye"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
