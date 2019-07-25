@@ -24,7 +24,83 @@
         </div>
 
         <div class='container-fluid'>
-            
-        </div>
+            <div class="row">
+                <!-- Parcourir -->
+                <div class='col-md-9'>
+                    <h3>Parcourir</h3>
+                    <div class='row'>
+                    {% for contentType in universe.contentTypes %}
+                        <div class='col-md-12'>
+                            <div class="card">
+                                <div class="header">
+                                    <h5 class="title"><b>{{contentType.name}}</b></h5>
+                                </div>
+                                <div class="content container-fluid">
+                                    <div class='row'>
+                                    {% if contentType.nbrContents == 0 %}
+                                        <div class='col-md-12'>
+                                            <img style="width:70rem; border-radius:10%; text-transform:uppercase;display: block; margin-left: auto;  margin-right: auto;" src="{{ asset('src/image/nothingtosee.gif') }}" alt="..."/>
+                                        </div>
+                                    {% endif %}
+                                    {% for content in contents %}
+                                        {% if content.contentType == contentType %}
+                                            <div class='col-md-4'>
+                                                <a href=" {{path('univers_show_content', {'id': universe.id , 'idContent': content.id})}} ">
+                                                <div class="card" style="height: 150px;">
+                                                    <div class="header">
+                                                        <div class='row'>
+                                                            <div class='col-md-4'>  
+                                                                {% if content.image %}             
+                                                                    <img style="width:50px; border-radius:10%; text-transform:uppercase;" src="{{ asset('image-user/'~ content.image) }}" alt="..."/>
+                                                                {% else %}
+                                                                    Aucune Image 
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class='col-md-8'>
+                                                                <b>{{content.name}}</b>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="content">
+                                                        {{content.description}}
+                                                    </div>
+                                                </div>
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class='col-md-12'>
+                            <img style="width:70rem; border-radius:10%; text-transform:uppercase;display: block; margin-left: auto;  margin-right: auto;" src="{{ asset('src/image/nothingtosee.gif') }}" alt="..."/>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+                <!-- END Parcourir -->
+
+                <!-- Menu -->
+                <div class='col-md-3'>
+                    <h3>Catégories</h3>
+                    <ul class="list-group">
+                        {% for contentType in universe.contentTypes %}
+                            <a href="{{path('univers_category', {'id': universe.id , 'idCat': contentType.id})}}">
+                                <li  class="list-group-item">
+                                <span class="badge">{{ contentType.nbrContents }}</span>
+                                <h5 class="title">{{contentType.name}}</h5>
+                                </li>
+                            </a>
+                        {% else %}
+                            <div class='col-md-12'>
+                                <img style="width:25rem; border-radius:10%; text-transform:uppercase;display: block; margin-left: auto;  margin-right: auto;" src="{{ asset('src/image/nothingtosee.gif') }}" alt="..."/>
+                            </div>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>  
     </div>
 {% endblock %}

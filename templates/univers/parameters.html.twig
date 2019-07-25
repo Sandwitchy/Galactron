@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-
-{% block body %}
+{% block script %}
     <script>
-        // script de prévisualisation d'image
+        $.switcher('input[type=checkbox]'); 
+         // script de prévisualisation d'image
          var openFile = function(event) {
             var input = event.target;
 
@@ -16,6 +16,9 @@
             reader.readAsDataURL(input.files[0]);
         };
     </script>
+{% endblock %}
+
+{% block body %}
     <div class="content">
         {% for message in app.flashes('success') %}
             <div class="alert alert-success">
@@ -33,8 +36,9 @@
                             <div class='col-md-7'>
                                 <h4 class="title">{{universe.name}}/Paramètres</h4>
                             </div>
-                            <div class='col-md-2'>
+                            <div class='col-md-2 btn-group'>
                                 <a href='{{ path('univers_gestion', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-clipboard"></i></a>
+                                <a href='{{ path('univers_delete', {'id': universe.id}) }}' class='btn btn-danger'><i class="fa fa-trash"></i></a>
                             </div>
                         </div>
                     </div>
@@ -45,6 +49,14 @@
                                     <div class="form-group">
                                         <label>Nom de l'univers</label>
                                         <input type="text" name='name' class="form-control" placeholder="Nom de l'univers" value="{{ universe.name }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Rendre l'univers invisible ?</label><br>
+                                        {% if universe.isPrivate == true %}
+                                            <input type="checkbox" name='isPrivate' checked class="form-control" >
+                                        {% else %}
+                                            <input type="checkbox" name='isPrivate' class="form-control" >
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class='col-md-6'>

@@ -28,6 +28,11 @@ class ContentType extends DefaultObject
      */
     private $Univers;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $nbrContents;
+
     public function __construct()
     {
         $this->contents = new ArrayCollection();
@@ -88,6 +93,28 @@ class ContentType extends DefaultObject
     public function setUnivers(?Univers $Univers): self
     {
         $this->Univers = $Univers;
+
+        return $this;
+    }
+
+    public function getNbrContents(): ?int
+    {
+        return $this->nbrContents;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setNbrContents()
+    {
+        $contents = $this->getContents();
+        $lenght = 0;
+        foreach($contents as $content){
+            if($content->getIsPrivate() == false){
+                $lenght++;
+            }
+        }
+        $this->nbrContents = $lenght;
 
         return $this;
     }

@@ -29,7 +29,7 @@ class Univers extends DefaultObject
     private $image;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserUnivers", mappedBy="Univers")
+     * @ORM\OneToMany(targetEntity="App\Entity\UserUnivers", mappedBy="Univers", orphanRemoval=true)
      */
     private $userUnivers;
 
@@ -42,6 +42,11 @@ class Univers extends DefaultObject
      * @ORM\OneToMany(targetEntity="App\Entity\ContentType", mappedBy="Univers", orphanRemoval=true)
      */
     private $contentTypes;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isPrivate;
 
     public function __construct()
     {
@@ -178,6 +183,18 @@ class Univers extends DefaultObject
                 $contentType->setUnivers(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsPrivate(): ?bool
+    {
+        return $this->isPrivate;
+    }
+
+    public function setIsPrivate(bool $isPrivate): self
+    {
+        $this->isPrivate = $isPrivate;
 
         return $this;
     }

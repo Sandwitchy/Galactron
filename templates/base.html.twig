@@ -61,9 +61,8 @@
                         <i class="fa fa-globe"></i>
                         <p>Accueil</p>
                     </a>
-                    
                     {% if is_granted('IS_AUTHENTICATED_FULLY')%}
-                        {% for univers in app.user.univers %}
+                        {% for univers in favoris.getFavorites %}
                         <a class='row' href="{{ path('univers_show', {'id': univers.id}) }}">
                             <img style="width:30px; border-radius:50%; text-transform:uppercase;" src="{{ asset('image-user/'~ univers.image) }}" alt="..."/>
                             {{ univers.name }}

@@ -26,8 +26,9 @@ class UniversController extends AbstractController
         dump($user);
         if ($request->request->get('name') !== null) {
 
-            $universe -> setName($request->request->get('name'));
-            $universe -> setCreator($user);
+            $universe   -> setName($request->request->get('name')) 
+                        -> setCreator($user)
+                        -> setIsPrivate(true);
             if($request->files->get('image') !== null){
 
                 $file = $request->files->get('image');
@@ -64,17 +65,58 @@ class UniversController extends AbstractController
     */
     public function show(Univers $universe,Security $security)
     {
-        $user = $security->getUser();
+        // met a jour le nombre de content public
+        $contentTypes = $this->getDoctrine()
+                            ->getRepository(ContentType::class)
+                            ->findAll();
+        $entityManager = $this->getDoctrine()->getManager();
+        foreach($contentTypes as $contentType){
+            $contentType->setNbrContents();
+            $entityManager->persist($contentType);
+        }
+        $entityManager->flush();
 
+
+        $user = $security->getUser();
+        
+        $contents = $this->getDoctrine()
+                    ->getRepository(Content::class)
+                    ->findBy(
+                        ['isPrivate' => false,
+                        'univers' => $universe->getId()]
+                    );
+        
         // check si l'user connecté est l'admin de l'univers
         ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
 
         return $this->render('univers/show.html.twig', [
             'universe' => $universe,
+            'contents' => $contents,
             'isCreator' => $isCreator,
         ]);
     }
 
+     /**
+     * @Route("univers/{id}/categorie/{idCat}", name="univers_category", methods={"GET"})
+    */
+    public function categorie(Univers $universe,Security $security,$idCat)
+    {
+        // met a jour le nombre de content public
+        $contentType = $this->getDoctrine()
+                            ->getRepository(ContentType::class)
+                            ->find($idCat);
+
+        $user = $security->getUser();
+        
+        // check si l'user connecté est l'admin de l'univers
+        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+
+        return $this->render('univers/category.html.twig', [
+            'universe' => $universe,
+            'contentType' => $contentType,
+            'isCreator' => $isCreator,
+        ]);
+    }
     /**
      * @Route("univers/{id}/parameters", name="univers_parameters", methods={"GET","POST"})
      * 
@@ -87,6 +129,8 @@ class UniversController extends AbstractController
         if ($request->request->get('name') !== null) {
             $universe -> setName($request->request->get('name'));
             $universe -> setCreator($user);
+
+            ($request->request->get('isPrivate') == true)? $universe -> setIsPrivate(true) : $universe -> setIsPrivate(false);
             if($request->files->get('image') !== null){
 
                 $file = $request->files->get('image');
@@ -138,7 +182,35 @@ class UniversController extends AbstractController
             'isCreator' => $isCreator,
         ]);
     }
+    /**
+     * @Route("univers/delete/{id}", name="univers_delete", methods={"GET"})
+     * 
+    */
+    public function delete(Univers $universe,Security $security)
+    {
+        $user = $security->getUser();
+        if($universe->getCreator() == $user){
 
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $entityManager->remove($universe);
+
+            $entityManager->flush();
+             // INSERER ALERT danger 
+             $this->addFlash(
+                'deleteUnivers',
+                'Votre univers à bien été supprimé, nous somme déçus de votre utilisation de Galactron... Il ne sait plus où se mettre...'
+            );
+            return $this->redirectToRoute('dashboard');
+        }
+         // INSERER ALERT danger 
+         $this->addFlash(
+            'danger',
+            "Tu essaies d'accomplir quelque chose ?"
+            );
+        return $this->redirectToRoute('dashboard');
+
+    }
     /**
      * @Route("univers/{id}/gestion", name="univers_gestion", methods={"GET","POST"})
     */
