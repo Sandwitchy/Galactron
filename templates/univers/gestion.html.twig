@@ -10,8 +10,13 @@
 {% block body %}
 <div class="container-fluid">
     <div class="col-md-12">
-         {% for message in app.flashes('success') %}
+        {% for message in app.flashes('success') %}
             <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('danger') %}
+            <div class="alert alert-danger">
                 {{ message }}
             </div>
         {% endfor %}
@@ -41,6 +46,7 @@
                             <td>Auteur</td>
                             <td>Public ?</td>
                             <td>Date création</td>
+                            <td>Dernière modification</td>
                             <td>Options</td>
                         </tr>
                     </thead>
@@ -51,7 +57,8 @@
                                     <img style="width:30px; border-radius:50%; text-transform:uppercase;" src="{{ asset('image-user/'~ content.image) }}" alt="..."/>
                                     {{content.name}}
                                 </td>
-                                <td>{% if not content.contentType %}
+                                <td>
+                                    {% if not content.contentType %}
                                         Aucune catégorie
                                     {% else %}
                                         {{content.contentType}}
@@ -67,9 +74,16 @@
                                 </td>
                                 <td>{{ content.createdAt | date("d/m/Y")}} </td>
                                 <td>
+                                    {% if content.updatedAt %}
+                                        {{ content.updatedAt | date("d/m/Y")}} 
+                                    {% else %}
+                                        Jamais modifié
+                                    {% endif %}
+                                </td>
+                                <td>
                                     <div class='btn-group'>
-                                        <a href="" class="btn btn-info"><i class="fa fa-edit"></i></a>
-                                        <a href="" class="btn btn-secondary"><i class="fa fa-eye"></i></a>
+                                        <a href="{{ path('univers_edit_content', {'id': universe.id , 'idContent': content.id}) }}" class="btn btn-info"><i class="fa fa-edit"></i></a>
+                                        <a href="{{ path('univers_show_content', {'id': universe.id , 'idContent': content.id}) }}" class="btn btn-secondary"><i class="fa fa-eye"></i></a>
                                     </div>
                                 </td>
                             </tr>

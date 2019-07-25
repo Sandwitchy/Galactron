@@ -76,7 +76,7 @@ class UniversController extends AbstractController
     }
 
     /**
-     * @Route("univers/parameters/{id}", name="univers_parameters", methods={"GET","POST"})
+     * @Route("univers/{id}/parameters", name="univers_parameters", methods={"GET","POST"})
      * 
     */
     public function edit(Univers $universe,Security $security,Request $request,FileUploader $fileUploader)
@@ -140,7 +140,7 @@ class UniversController extends AbstractController
     }
 
     /**
-     * @Route("univers/gestion/{id}", name="univers_gestion", methods={"GET","POST"})
+     * @Route("univers/{id}/gestion", name="univers_gestion", methods={"GET","POST"})
     */
     public function gestion(Univers $universe,Security $security)
     {
@@ -156,7 +156,7 @@ class UniversController extends AbstractController
         ]);
     }
     /**
-     * @Route("univers/gestion/new/{id}", name="univers_new_content", methods={"GET","POST"})
+     * @Route("univers/{id}/gestion/new/", name="univers_new_content", methods={"GET","POST"})
     */
     public function newContent(Univers $universe,Security $security,Request $request,FileUploader $fileUploader)
     {
@@ -211,6 +211,113 @@ class UniversController extends AbstractController
         return $this->render('content/new.html.twig', [
             'universe' => $universe,
             'isCreator' => $isCreator,
+        ]);
+    }
+    /**
+     * @Route("univers/{id}/gestion/edit/{idContent}", name="univers_edit_content", methods={"GET","POST"})
+    */
+    public function editContent(Univers $universe,Security $security,Request $request,FileUploader $fileUploader,$idContent)
+    {
+        // récupère les infos de l'user connecté
+        $user = $security->getUser();
+        $content =  $this->getDoctrine()
+                    ->getRepository(Content::class)
+                    ->find($idContent);
+
+        if($request->request->get('name') !== null){
+
+            $content -> setName($request->request->get('name'))
+                     -> setContent($request->request->get('content'))
+                     -> setAuthor($user)
+                     -> setUnivers($universe);
+
+            ($request->request->get('isPrivate') == true)? $content->setIsPrivate(true) : $content->setIsPrivate(false);
+            if($request->request->get('description') !== null){
+                $content->setDescription($request->request->get('description'));
+            }
+            if($request->request->get('contentType') !== null){
+                $id = $request->request->get('contentType');
+                $contentType = $this->getDoctrine()
+                            ->getRepository(ContentType::class)
+                            ->find($id);
+                $content->setContentType($contentType);
+            }
+            if($request->files->get('image') !== null){
+
+                $file = $request->files->get('image');
+                $nameFile = $fileUploader->upload($file);
+
+                $content -> setImage($nameFile);
+            }
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($content);
+            $entityManager->flush();
+
+             // INSERER ALERT SUCCESS 
+             $this->addFlash(
+                'success',
+                'Votre contenu à bien été enregistré !'
+            );
+
+            return $this->redirectToRoute('univers_gestion', [
+                'id' => $universe->getId(),
+            ]);
+        }
+
+        // check si l'user connecté est l'admin de l'univers
+        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+
+        return $this->render('content/edit.html.twig', [
+            'universe' => $universe,
+            'isCreator' => $isCreator,
+            'content' => $content
+        ]);
+    }
+    /**
+     * @Route("univers/{id}/gestion/show/{idContent}", name="univers_show_content", methods={"GET"})
+    */
+    public function showContent(Univers $universe,Security $security,$idContent)
+    {
+        // récupère les infos de l'user connecté
+        $user = $security->getUser();
+        $content =  $this->getDoctrine()
+                    ->getRepository(Content::class)
+                    ->find($idContent);
+        // check si l'user connecté est l'admin de l'univers
+        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+
+        return $this->render('content/show.html.twig', [
+            'universe' => $universe,
+            'isCreator' => $isCreator,
+            'content' => $content
+        ]);
+    }
+    /**
+     * @Route("univers/{id}/gestion/delete/{idContent}", name="univers_delete_content", methods={"GET"})
+    */
+    public function deleteContent(Univers $universe,Security $security,$idContent)
+    {
+        // récupère les infos de l'user connecté
+        $user = $security->getUser();
+        $content =  $this->getDoctrine()
+                    ->getRepository(Content::class)
+                    ->find($idContent);
+
+        // check si l'user connecté est l'admin de l'univers
+        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+        
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($content);
+        $entityManager->flush();
+
+         // INSERER ALERT danger 
+         $this->addFlash(
+            'danger',
+            'Votre contenu à bien été supprimé...'
+        );
+        return $this->redirectToRoute('univers_gestion', [
+            'id' => $universe->getId(),
         ]);
     }
 }

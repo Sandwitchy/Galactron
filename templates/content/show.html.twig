@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container-fluid">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="header">
+                <div class='row'>
+                    <div class='col-md-3'>
+                        <img style="width:100px; border-radius:10%; text-transform:uppercase;" src="{{ asset('image-user/'~ universe.image) }}" alt="..."/>
+                    </div>
+                    <div class='col-md-7'>
+                        <h4 class="title">{{universe.name}}/Afficher contenu</h4>
+                    </div>
+                    <div class='col-md-2 btn-group'>
+                        {% if isCreator == true %}
+                            <a href='{{ path('univers_parameters', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-cog"></i></a>
+                            <a href='{{ path('univers_delete_content', {'id': universe.id , 'idContent': content.id}) }}' class='btn btn-danger'><i class="fa fa-trash"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+            <form method="post" enctype="multipart/form-data">
+                <div class='row'>
+                    <div class='col-md-8'>
+                        <label>Titre</label>
+                        <p>{{ content.name }}</p>
+                        <label>Description</label>
+                        <p>{% if content.description %}
+                                {{content.description }}
+                            {% else %}  
+                                Aucune description 
+                            {% endif %}
+                        </p>
+                        <label>Image</label><br>
+                        {% if content.image %}
+                            <img id='image-preview' style='width:100px; border-radius:10%; text-transform:uppercase;' src="{{asset('image-user/'~ content.image)}}"alt=''>
+                        {% else %}
+                            Aucune image
+                        {% endif %}
+                    </div>
+                    <div class='col-md-4'>
+                        <label>Statut</label><br>
+                        {% if content.isPrivate == true %}
+                            Privé
+                        {% else %}
+                            Publique
+                        {% endif %} 
+                        <br>
+                        <label>Catégorie du contenu</label>
+                        <br>
+                        {% if content.contentType %}
+                            {{content.contentType}}
+                        {% else %}
+                            Aucune catégories
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class="container-fluid">
+                    <label>Contenu</label><br>
+                    {{content.content | raw}}
+                </div>
+
+                <div class="btn-group">
+                    <a href="{{ path('univers_edit_content', {'id': universe.id , 'idContent': content.id}) }}" class='btn btn-info'><i class="fa fa-edit"></i></a>
+                    <a href="{{ path('univers_gestion', {'id': universe.id}) }}" class='btn btn-secondary'>Retour</a>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
