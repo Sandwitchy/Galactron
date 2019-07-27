@@ -14,7 +14,40 @@
             output.src = dataURL;
             };
             reader.readAsDataURL(input.files[0]);
-        };
+        };  
+    $( function() {
+        $( "#user" ).autocomplete({
+            source : function( request, response ) {
+                $.ajax( {
+                url: "{{path('users_json')}}",
+                dataType: "json",
+                data: {
+                    term: request.term
+                },
+                success : function( data ) {
+                    response( data );
+                }
+                });
+            },
+            minLength: 3,
+            autoFocus: true,
+            focus: function( event, ui ) {
+                $( "#user" ).val( ui.item.text );
+                return false;
+            },      
+            select: function( event, ui ) {
+                $( "#user" ).val( ui.item.text );
+                $( "#user-id" ).val( ui.item.id );      
+                $( "#user-icon" ).attr( "src", "{{asset('image-user')}}/" + ui.item.icon );  
+                return false;
+            }
+        }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+                return $( "<li>" )
+                    .attr( "data-value", item.id )
+                    .append("<div><img src='{{asset('image-user')}}/"+item.icon+"' style='height:25px;'>"+ item.text +"</div>")
+                    .appendTo( ul )
+        }
+    });
     </script>
 {% endblock %}
 
@@ -45,6 +78,7 @@
                     <div class="content">
                         <div class="container-fluid">
                             <form method='post' enctype="multipart/form-data">
+                            <div class='row'>
                                 <div class='col-md-6'>
                                     <div class="form-group">
                                         <label>Nom de l'univers</label>
@@ -72,17 +106,19 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <div class='btn-group'>
-                                    <button type='submit' class='btn btn-success'>Enregistrer</button>
-                                    <a href="{{ path('univers_show', {'id': universe.id}) }}" class='btn btn-secondary'>Retour</a>
+                                <div class='col-md-12'>
+                                    <div class='btn-group'>
+                                        <button type='submit' class='btn btn-success'>Enregistrer</button>
+                                        <a href="{{ path('univers_show', {'id': universe.id}) }}" class='btn btn-secondary'>Retour</a>
+                                    </div>
                                 </div>
+                            </div>
                             </form>
                         </div>
-                        <div class='col-md'>
-                            <h3>Catégories</h3>
-                            <div class='container-fluid'>
-                                <div class='col-md-6'>
+                        <div class='row'>
+                            <div class='col-md-6'>
+                                <h3>Catégories</h3>
+                                <div class='container-fluid'>
                                     <form method='post'>
                                         <label>Ajouter une catégorie</label>
                                     <div class='row'>
@@ -98,6 +134,7 @@
                                         <tr>
                                             <th>Nom</th>
                                             <th>Options</th>
+                                        </tr>
                                         {% for contentType in universe.contentTypes %}
                                             <tr>
                                                 <td>{{contentType.name}}</td>
@@ -111,7 +148,34 @@
                                     </table>
                                 </div>
                             </div>
+                            <div class='col-md-6'>
+                                <h3>Rédacteur</h3>
+                                <div class='container-fluid'>
+                                    <form method='post'>
+                                        <label>Ajouter un rédacteur</label>
+                                    <div class='row'>
+                                        <div class='col-md-2'>
+                                            <img src='{{asset('image-user/blank.png')}}' style='height:45px; width:45px;border-radius:25%;border: 2px grey solid' id='user-icon'>
+                                        </div>
+                                        <div class='col-md-8'>
+                                            <input class="form-control" id="user" type="text">   
+                                            <input type='hidden' id='user-id' name='userId'>                                         
+                                        </div>
+                                        <div class='col-md-2'>
+                                            <button type='submit' class='btn btn-success'><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                    </form>
+                                    <table class='table table-striped'>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Options</th>
+                                        </tr>
+                                    </table> 
+                                </div>
+                            </div>
                         </div>
+                        <!-- row -->
                     </div>
                 </div>
             </div>

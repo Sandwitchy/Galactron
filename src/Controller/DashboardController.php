@@ -17,14 +17,18 @@ class DashboardController extends AbstractController
     public function index(Security $security)
     {   
         $user = $security->getUser();
-
-        $userUnivers = $user -> getUserUnivers();
+        if($user !== null){
+            $userUnivers = $user -> getUserUnivers();
         
-        $universInFav = array();
-        foreach($userUnivers as $univers){
-            array_push($universInFav,$univers->getUnivers());
+            $universInFav = array();
+            foreach($userUnivers as $univers){
+                array_push($universInFav,$univers->getUnivers());
+            }
+            
+        }else{
+            $universInFav = "";
         }
-        $universes = $this->getDoctrine()
+        $universes = $this  ->getDoctrine()
                             ->getRepository(Univers::class)
                             ->findBy(
                                 ['isPrivate' => false]

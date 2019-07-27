@@ -105,7 +105,12 @@ class UniversController extends AbstractController
         $contentType = $this->getDoctrine()
                             ->getRepository(ContentType::class)
                             ->find($idCat);
-
+        $contents = $this   ->getDoctrine()
+                            ->getRepository(Content::class)
+                            ->findBy(
+                                ['isPrivate' => false,
+                                'contentType' => $contentType->getId()]
+                            );
         $user = $security->getUser();
         
         // check si l'user connecté est l'admin de l'univers
@@ -114,6 +119,7 @@ class UniversController extends AbstractController
         return $this->render('univers/category.html.twig', [
             'universe' => $universe,
             'contentType' => $contentType,
+            'contents' => $contents,
             'isCreator' => $isCreator,
         ]);
     }
@@ -124,6 +130,7 @@ class UniversController extends AbstractController
     public function edit(Univers $universe,Security $security,Request $request,FileUploader $fileUploader)
     {
         $user = $security->getUser();
+        dump($request);
 
         // update des infos de base de l'univers
         if ($request->request->get('name') !== null) {
@@ -173,7 +180,7 @@ class UniversController extends AbstractController
                 'id' => $universe->getId(),
             ]);
         }
-
+        
         // check si l'user connecté est l'admin de l'univers
         ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
 

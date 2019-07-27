@@ -8,6 +8,9 @@ use App\Form\UserType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\Security;
 
 class UserController extends AbstractController
 {
@@ -78,5 +81,27 @@ class UserController extends AbstractController
         return $this->render('user/user.html.twig',[
             'form' => $form->createView(),
         ]);
+    }
+    
+     /**
+     * @Route("/Users_Json", name="users_json", methods={"POST","GET"})
+     */
+    public function userJson(Request $request, Security $security)
+    {
+            $userLog = $security->getUser();
+            $users = $this->getDoctrine()
+                            ->getRepository(User::class)
+                            ->findAll();
+            $json = array();
+            foreach($users as $user){
+                if($user !== $userLog){
+                    array_push($json,[
+                        'text' => $user->getUsername() ,
+                        'icon' => $user->getImage(),
+                        'id' => $user->getId()
+                    ]);
+                }
+            }
+            return $this->json($json);        
     }
 }

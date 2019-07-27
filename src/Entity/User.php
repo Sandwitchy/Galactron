@@ -83,12 +83,24 @@ class User implements UserInterface
      */
     private $contents;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Message", mappedBy="toUser")
+     */
+    private $messages;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Message", mappedBy="FromUser")
+     */
+    private $messageDest;
+
     public function __construct()
     {
         $this->roles = array('ROLE_USER');
         $this->univers = new ArrayCollection();
         $this->userUnivers = new ArrayCollection();
         $this->contents = new ArrayCollection();
+        $this->messages = new ArrayCollection();
+        $this->messageDest = new ArrayCollection();
     }
 
     // other properties and methods
@@ -285,4 +297,68 @@ class User implements UserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection|Message[]
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages[] = $message;
+            $message->setToUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): self
+    {
+        if ($this->messages->contains($message)) {
+            $this->messages->removeElement($message);
+            // set the owning side to null (unless already changed)
+            if ($message->getToUser() === $this) {
+                $message->setToUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Message[]
+     */
+    public function getMessageDest(): Collection
+    {
+        return $this->messageDest;
+    }
+
+    public function addMessageDest(Message $messageDest): self
+    {
+        if (!$this->messageDest->contains($messageDest)) {
+            $this->messageDest[] = $messageDest;
+            $messageDest->setFromUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessageDest(Message $messageDest): self
+    {
+        if ($this->messageDest->contains($messageDest)) {
+            $this->messageDest->removeElement($messageDest);
+            // set the owning side to null (unless already changed)
+            if ($messageDest->getFromUser() === $this) {
+                $messageDest->setFromUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+
 }

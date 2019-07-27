@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block script %}
+<script>
+    $(document).ready(function() {
+        $('#message').DataTable();
+    } );
+</script>
+{% endblock %}
+
+{% block body %}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('danger') %}
+        <div class="alert alert-danger">        
+            {{ message }}
+        </div>
+    {% endfor %}
+    <div class="container-fluid">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="header">
+                    <div class='row'>
+                        <div class='col-md-8'>
+                            <h1 class="title">Messagerie</h1>
+                        </div>
+                        <div class='col-md-4'>
+                            <button class='btn btn-info btn-lg'><i class="fa fa-lg fa-plus"></i></button>
+                        </div>
+                </div>
+                <div class="content">
+                    <table id="message" class="display">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Destinataire</th>
+                                <th>Date de reception</th>
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for message in messages %}
+                                <tr>
+                                    <td>{{message.title}}</td>
+                                    <td>{{message.fromUser}}</td>
+                                    <td>{{message.createdAt | date("d/m/Y")}}</td>
+                                    <td><i>soon</i></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
