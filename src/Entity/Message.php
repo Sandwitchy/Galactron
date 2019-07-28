@@ -36,6 +36,11 @@ class Message extends DefaultObject
      */
     private $isSystem;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isRead;
+
     public function getToUser(): ?User
     {
         return $this->toUser;
@@ -92,6 +97,18 @@ class Message extends DefaultObject
     public function setIsSystem(bool $isSystem): self
     {
         $this->isSystem = $isSystem;
+
+        return $this;
+    }
+
+    public function getIsRead(): ?bool
+    {
+        return $this->isRead;
+    }
+
+    public function setIsRead(bool $isRead): self
+    {
+        $this->isRead = $isRead;
 
         return $this;
     }

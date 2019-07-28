@@ -35,6 +35,8 @@
     <!-- datable css -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/ju/dt-1.10.18/datatables.min.css"/>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    {% block style %}
+    {% endblock %}
 </head>
 <body>
 
@@ -63,9 +65,15 @@
                     </a>
                     {% if is_granted('IS_AUTHENTICATED_FULLY')%}
                         {% for univers in favoris.getFavorites %}
-                        <a class='row' href="{{ path('univers_show', {'id': univers.id}) }}">
-                            <img style="width:30px; border-radius:50%; text-transform:uppercase;" src="{{ asset('image-user/'~ univers.image) }}" alt="..."/>
-                            {{ univers.name }}
+                        <a href="{{ path('univers_show', {'id': univers.id}) }}">
+                            <div class='row'>
+                                <div class="col-md-3">
+                                    <img style="width:30px; border-radius:50%; text-transform:uppercase;" src="{{ asset('image-user/'~ univers.image) }}" alt="..."/>
+                                </div>
+                                <div class='col-md-9'>
+                                    {{ univers.name }}
+                                </div>
+                            </div>
                         </a>
                         {% endfor %}
                         <a href="{{path('create_universe')}}">
@@ -88,14 +96,14 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="{{path('dashboard')}}">Dashboard</a>
+                    <a class="navbar-brand" href="{{path('dashboard')}}">Le futur ... aujourd'hui ...</a>
                 </div>
                 <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav navbar-left">
+                    {# <ul class="nav navbar-nav navbar-left">
                         <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-dashboard"></i>
-								<p class="hidden-lg hidden-md">Dashboard</p>
+								<p class="hidden-lg hidden-md"></p>
                             </a>
                         </li>
                         <li class="dropdown">
@@ -121,7 +129,7 @@
 								<p class="hidden-lg hidden-md">Search</p>
                             </a>
                         </li>
-                    </ul>
+                    </ul> #}
 
                     <ul class="nav navbar-nav navbar-right">
                         {% if is_granted('IS_AUTHENTICATED_FULLY')%}
@@ -163,30 +171,6 @@
 
         <footer class="footer">
             <div class="container-fluid">
-                <nav class="pull-left">
-                    <ul>
-                        <li>
-                            <a href="#">
-                                Home
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                Company
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                Portfolio
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                               Blog
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
                 <p class="copyright pull-right">
                     &copy; <script>document.write(new Date().getFullYear())</script> <a href="http://www.creative-tim.com">Creative Tim</a>, made with love for a better web
                 </p>

@@ -11,8 +11,10 @@ use App\Entity\UserUnivers;
 use App\Entity\User;
 use App\Entity\ContentType;
 use App\Entity\Content;
+use App\Entity\Message;
 use App\Form\UserType;
 use App\Service\FileUploader;
+use App\Service\MessageSystemService;
 
 class UniversController extends AbstractController
 {
@@ -127,10 +129,10 @@ class UniversController extends AbstractController
      * @Route("univers/{id}/parameters", name="univers_parameters", methods={"GET","POST"})
      * 
     */
-    public function edit(Univers $universe,Security $security,Request $request,FileUploader $fileUploader)
+    public function edit(Univers $universe,Security $security,Request $request,FileUploader $fileUploader,MessageSystemService $messSystem)
     {
         $user = $security->getUser();
-        dump($request);
+        $entityManager = $this->getDoctrine()->getManager();
 
         // update des infos de base de l'univers
         if ($request->request->get('name') !== null) {
@@ -146,7 +148,6 @@ class UniversController extends AbstractController
                 $universe -> setImage($nameFile);
             }
 
-            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($universe);
             $entityManager->flush();
 
@@ -160,13 +161,44 @@ class UniversController extends AbstractController
                 'id' => $universe->getId(),
             ]);
         }
+
+        if ($request->request->get('userId') != null) {
+            if($request->request->get('userName') != null){
+                $userId = $request->request->get('userId');
+                $newRedacteur = $this->getDoctrine()
+                                    ->getRepository(User::class)
+                                    ->find($userId);
+                if($newRedacteur->getUsername() == ($request->request->get('userName'))){
+
+                    $messSystem -> sendPromoteRedactor($newRedacteur,$user,$universe);
+
+                     // Success
+                    $this->addFlash(
+                        'success',
+                        "L'utilisateur ".$newRedacteur->getUsername()." va recevoir une invitation pour devenir rédacteur de ". $universe->getName()
+                    );
+                    return $this->redirectToRoute('univers_parameters', [
+                        'id' => $universe->getId(),
+                    ]);
+                }
+                
+            }
+            // ERREUR
+            $this->addFlash(
+                'danger',
+                'Une erreur est survenue, veuillez réessayez'
+            );
+            return $this->redirectToRoute('univers_parameters', [
+                'id' => $universe->getId(),
+            ]);
+        }
+
         // ajout d'un ContentType
         if($request->request->get('contentTypeName') !== null){
             $contentType = new ContentType();
             $contentType->setName($request->request->get('contentTypeName'))
                         ->setUnivers($universe);
 
-            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($contentType);
             $entityManager->flush();
 
@@ -183,7 +215,13 @@ class UniversController extends AbstractController
         
         // check si l'user connecté est l'admin de l'univers
         ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-
+        if($isCreator == false){
+            $this->addFlash(
+                'danger',
+                "Vous n'avez pas les droits d'accès à cette page."
+            );
+            return $this->redirectToRoute('dashboard');
+        }
         return $this->render('univers/parameters.html.twig', [
             'universe' => $universe,
             'isCreator' => $isCreator,
@@ -206,7 +244,7 @@ class UniversController extends AbstractController
              // INSERER ALERT danger 
              $this->addFlash(
                 'deleteUnivers',
-                'Votre univers à bien été supprimé, nous somme déçus de votre utilisation de Galactron... Il ne sait plus où se mettre...'
+                'Votre univers à bien été supprimé, nous sommes désolé que vous aillez choisis Galactron...'
             );
             return $this->redirectToRoute('dashboard');
         }

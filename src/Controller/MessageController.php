@@ -22,4 +22,5 @@ class MessageController extends AbstractController
             'messages' => $messages,
         ]);
     }
+
 }

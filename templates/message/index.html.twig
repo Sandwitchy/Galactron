@@ -45,10 +45,20 @@
                             {% for message in messages %}
                                 <tr>
                                     <td>{{message.title}}</td>
-                                    <td>{{message.fromUser}}</td>
+                                    <td>
+                                        {% if message.isSystem == true %}
+                                            Galactron
+                                        {% else %}
+                                            {{message.fromUser}}
+                                        {% endif %}
+                                    </td>
                                     <td>{{message.createdAt | date("d/m/Y")}}</td>
                                     <td><i>soon</i></td>
                                 </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan='4' style='text-align:center'>Aucun messages reçus</td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
