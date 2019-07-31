@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+{% if (isCreator == true) or (isRedactor == true) and (showAsVisitor == false) %}
     <div class="container-fluid">
     <div class="col-md-12">
         <div class="card">
@@ -10,9 +11,12 @@
                         <img style="width:100px; border-radius:10%; text-transform:uppercase;" src="{{ asset('image-user/'~ universe.image) }}" alt="..."/>
                     </div>
                     <div class='col-md-7'>
-                        <h4 class="title">{{universe.name}}/Afficher contenu</h4>
+                        <h4 class="title">{{universe.name}}/Afficher contenu en admin</h4>
                     </div>
                     <div class='col-md-2 btn-group'>
+                        <form method='post'>
+                            <button type='submit' name='showAsVisitor' class='btn btn-info'><i class="fa fa-eye"></i></button>
+                        </form>
                         {% if isCreator == true %}
                             <a href='{{ path('univers_parameters', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-cog"></i></a>
                             <a href='{{ path('univers_delete_content', {'id': universe.id , 'idContent': content.id}) }}' class='btn btn-danger'><i class="fa fa-trash"></i></a>
@@ -72,4 +76,65 @@
         </div>
     </div>
 </div>
+{% else %}
+<div class="container-fluid">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="header">
+                <div class='row'>
+                    <div class='col-md-3'>
+                        <img style="width:100px; border-radius:10%; text-transform:uppercase;" src="{{ asset('image-user/'~ universe.image) }}" alt="..."/>
+                    </div>
+                    <div class='col-md-8'>
+                        <h4 class="title">{{universe.name}}/{{content.name}}</h4>
+                    </div>
+                    <div class='col-md-1'>
+                        {% if (isCreator == true) or (isRedactor == true) and (showAsVisitor == true) %}
+                        <form method='post'>
+                            <input type='hidden' value='true' name='state'>
+                            <button type='submit' name='showAsVisitor' class='btn btn-info'><i class="fa fa-cog"></i></button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+            <form method="post" enctype="multipart/form-data">
+                <div class='row'>
+                    <div class='col-md-8'>
+                        <label>Image</label><br>
+                        {% if content.image %}
+                            <img id='image-preview' style='width:200px; border-radius:10%; text-transform:uppercase;' src="{{asset('image-user/'~ content.image)}}"alt=''>
+                        {% else %}
+                            Aucune image
+                        {% endif %}
+                    </div>
+                    <div class='col-md-4'>
+                        <label>Catégorie du contenu</label>
+                        <br>
+                        {% if content.contentType %}
+                            {{content.contentType}}
+                        {% else %}
+                            Aucune catégories
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class="container-fluid">
+                    <label>Contenu</label><br>
+                    {{content.content | raw}}
+                </div>
+
+                <div class="btn-group">
+                    {% if (isCreator == true) or (isRedactor == true) and (showAsVisitor == true) %}
+                    <a href="{{ path('univers_edit_content', {'id': universe.id , 'idContent': content.id}) }}" class='btn btn-info'><i class="fa fa-edit"></i></a>
+                    {% endif %}
+                    <a href="{{ app.request.headers.get('referer') }}" class='btn btn-secondary'>Retour</a>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

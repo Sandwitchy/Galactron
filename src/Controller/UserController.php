@@ -7,9 +7,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\UserType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
+use App\Entity\Univers;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\FileUploader;
 use Symfony\Component\Security\Core\Security;
 
 class UserController extends AbstractController
@@ -103,5 +105,39 @@ class UserController extends AbstractController
                 }
             }
             return $this->json($json);        
+    }
+     /**
+     * @Route("/PromoteUser/{id}", name="promoteUser", methods={"GET"})
+     */
+    public function promoteUser(Request $request, Security $security,Univers $universe)
+    {
+        $user = $security->getUser();
+        
+        $userUnivers = $user->getUserUnivers();
+        foreach($userUnivers as $uU){
+            if($uU->getnameRole() === 'waiting_promote'){
+                if($uU->getUnivers() == $universe){
+                    $uU -> setNameRole('redactor');
+
+                    $entityManager = $this->getDoctrine()->getManager();
+                    $entityManager->persist($uU);
+                    $entityManager->flush();
+
+                    // INSERER ALERT SUCCESS 
+                    $this->addFlash(
+                        'success',
+                        "Félicitation !! Vous êtes devenu rédacteur de ".$universe->getName(). "!!"
+                    );
+                    return $this->redirectToRoute('dashboard');
+                }
+            }
+        }
+        // Error l'user n'as pas les autorisation d'etre promu
+        $this->addFlash(
+            'danger',
+            "Vous venez souvent par ici?"
+        );
+        return $this->redirectToRoute('dashboard');
+            
     }
 }

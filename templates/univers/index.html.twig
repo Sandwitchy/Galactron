@@ -23,6 +23,7 @@
                 <div class='footer'>
                     <div class='container-fluid'>
                         <button class='btn btn-success' type='submit'>Créer</button>
+                        <a href='{{app.request.headers.get('referer')}}' class='btn btn-secondary'>Retour</a>
                     </div>
                 </div>
                 </form>

@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block script %}
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="header">
+                    <div class='row'>
+                        <div class='col-md-10'>
+                            <h1 class="title">Messagerie</h1>
+                        </div>
+                        <div class='col-md-2 btn-group'>
+                            <a class='btn btn-danger' href="{{path('message_delete', {'id': message.id } ) }}"><i class="fa fa-trash"></i></a>
+                            <a class='btn btn-secondary' href='{{path('message')}}' ><i class="fa fa-arrow-left"></i></a>
+                        </div>
+                </div>
+                <div class="content">
+                    <div class='container-fluid'>
+                        <div class="form-group">
+                            <label>Titre : <b>{{message.title}}</b></label>
+                        </div>
+                        <div class='row'>
+                            <div class="col-md-6 form-group">
+                                {% if message.isSystem == false %}
+                                    <label>De : <b>{{message.fromUser}}</b></label>
+                                {% else %}
+                                    <label>De : <b>Galactron</b></label>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Envoyer le : <b>{{message.createdAt | date("d/m/Y")}}</b></label>
+                            </div>
+                        </div>
+                        <div class='container-fluid'>
+                            <div class='col-md-12'>
+                                {{message.content | raw}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

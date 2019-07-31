@@ -25,7 +25,9 @@ class UniversFavoris
         $userUnivers = $user -> getUserUnivers();
         $universes = $this->universes;
         foreach($userUnivers as $univers){
-            array_push($universes,$univers->getUnivers());
+            if($univers -> getNameRole() !== 'waiting_promote' ){
+                array_push($universes,$univers->getUnivers());
+            }
         }
 
         $this->universes = $universes;

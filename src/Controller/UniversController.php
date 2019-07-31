@@ -25,7 +25,18 @@ class UniversController extends AbstractController
     {
         $universe = new Univers();
         $user = $security->getUser();
-        dump($user);
+
+        // check si l'user connecté est l'admin de l'univers
+        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+        $isRedactor = $this->checkIfRedactor($user,$universe);
+        if(($isCreator == false)&&($isRedactor == false)){
+            $this->addFlash(
+                'danger',
+                "Vous n'avez pas les droits d'accès à cette page."
+            );
+            return $this->redirectToRoute('dashboard');
+        }
+
         if ($request->request->get('name') !== null) {
 
             $universe   -> setName($request->request->get('name')) 
@@ -59,7 +70,8 @@ class UniversController extends AbstractController
              return $this->redirectToRoute('dashboard');
         }
         return $this->render('univers/index.html.twig', [
-            'controller_name' => 'UniversController',
+            'isCreator' => $isCreator,
+            'isRedactor' => $isRedactor
         ]);
     }
     /**
@@ -90,11 +102,12 @@ class UniversController extends AbstractController
         
         // check si l'user connecté est l'admin de l'univers
         ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-
+        $isRedactor = $this->checkIfRedactor($user,$universe);
         return $this->render('univers/show.html.twig', [
             'universe' => $universe,
             'contents' => $contents,
             'isCreator' => $isCreator,
+            'isRedactor' => $isRedactor,
         ]);
     }
 
@@ -117,12 +130,14 @@ class UniversController extends AbstractController
         
         // check si l'user connecté est l'admin de l'univers
         ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+        $isRedactor = $this->checkIfRedactor($user,$universe);
 
         return $this->render('univers/category.html.twig', [
             'universe' => $universe,
             'contentType' => $contentType,
             'contents' => $contents,
             'isCreator' => $isCreator,
+            'isRedactor' => $isRedactor
         ]);
     }
     /**
@@ -133,6 +148,17 @@ class UniversController extends AbstractController
     {
         $user = $security->getUser();
         $entityManager = $this->getDoctrine()->getManager();
+
+        // check si l'user connecté est l'admin de l'univers
+        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+        $isRedactor = $this->checkIfRedactor($user,$universe);
+        if(($isCreator == false)&&($isRedactor == false)){
+            $this->addFlash(
+                'danger',
+                "Vous n'avez pas les droits d'accès à cette page."
+            );
+            return $this->redirectToRoute('dashboard');
+        }
 
         // update des infos de base de l'univers
         if ($request->request->get('name') !== null) {
@@ -212,19 +238,17 @@ class UniversController extends AbstractController
                 'id' => $universe->getId(),
             ]);
         }
-        
-        // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        if($isCreator == false){
-            $this->addFlash(
-                'danger',
-                "Vous n'avez pas les droits d'accès à cette page."
-            );
-            return $this->redirectToRoute('dashboard');
+        //récupération de la liste des rédacteurs
+        $users = $universe->getUserUnivers();
+        foreach($users as $use){
+            if($use->getNameRole() === 'redactor'){
+                $redactors[] = $use->getUser();
+            }
         }
         return $this->render('univers/parameters.html.twig', [
             'universe' => $universe,
             'isCreator' => $isCreator,
+            'redactors' => $redactors,
         ]);
     }
     /**
@@ -266,10 +290,18 @@ class UniversController extends AbstractController
 
         // check si l'user connecté est l'admin de l'univers
         ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-
+        $isRedactor = $this->checkIfRedactor($user,$universe);
+        if(($isCreator == false)&&($isRedactor == false)){
+            $this->addFlash(
+                'danger',
+                "Vous n'avez pas les droits d'accès à cette page."
+            );
+            return $this->redirectToRoute('dashboard');
+        }
         return $this->render('univers/gestion.html.twig', [
             'universe' => $universe,
             'isCreator' => $isCreator,
+            'isRedactor' => $isRedactor
         ]);
     }
     /**
@@ -279,6 +311,18 @@ class UniversController extends AbstractController
     {
         // récupère les infos de l'user connecté
         $user = $security->getUser();
+
+        $isRedactor = $this->checkIfRedactor($user,$universe);
+        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+        if(($isRedactor == false)&&($isCreator == false)){
+           // INSERER ALERT SUCCESS 
+           $this->addFlash(
+            'danger',
+            'Vous faites quoi?'
+            );
+
+            return $this->redirectToRoute('dashboard'); 
+        }
 
         if($request->request->get('name') !== null){
             $content = new Content();
@@ -322,12 +366,10 @@ class UniversController extends AbstractController
             ]);
         }
 
-        // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-
         return $this->render('content/new.html.twig', [
             'universe' => $universe,
             'isCreator' => $isCreator,
+            'isRedactor' => $isRedactor
         ]);
     }
     /**
@@ -340,8 +382,21 @@ class UniversController extends AbstractController
         $content =  $this->getDoctrine()
                     ->getRepository(Content::class)
                     ->find($idContent);
+        // check si l'user connecté est l'admin de l'univers
+        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+        $isRedactor = $this->checkIfRedactor($user,$universe);
 
+        if(($isRedactor == false)&&($isCreator == false)){
+           // INSERER ALERT SUCCESS 
+           $this->addFlash(
+            'danger',
+            'Vous faites quoi?'
+            );
+
+            return $this->redirectToRoute('dashboard'); 
+        }
         if($request->request->get('name') !== null){
+           
 
             $content -> setName($request->request->get('name'))
                      -> setContent($request->request->get('content'))
@@ -382,19 +437,17 @@ class UniversController extends AbstractController
             ]);
         }
 
-        // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-
         return $this->render('content/edit.html.twig', [
             'universe' => $universe,
             'isCreator' => $isCreator,
+            'isRedactor' => $isRedactor,
             'content' => $content
         ]);
     }
     /**
-     * @Route("univers/{id}/gestion/show/{idContent}", name="univers_show_content", methods={"GET"})
+     * @Route("univers/{id}/gestion/show/{idContent}", name="univers_show_content", methods={"GET","POST"})
     */
-    public function showContent(Univers $universe,Security $security,$idContent)
+    public function showContent(Univers $universe,Security $security,$idContent,Request $request)
     {
         // récupère les infos de l'user connecté
         $user = $security->getUser();
@@ -403,11 +456,24 @@ class UniversController extends AbstractController
                     ->find($idContent);
         // check si l'user connecté est l'admin de l'univers
         ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-
+        $isRedactor = $this->checkIfRedactor($user,$universe);
+        $showAsVisitor = false;
+        if($request->isMethod('post')){
+            if($request->request->get('state') == null){
+                $showAsVisitor = true;
+            }elseif($request->request->get('state') == true){
+                $showAsVisitor = false;
+            }else{
+                $showAsVisitor = true;
+            }
+        }
+           
         return $this->render('content/show.html.twig', [
             'universe' => $universe,
             'isCreator' => $isCreator,
-            'content' => $content
+            'isRedactor' => $isRedactor,
+            'content' => $content,
+            'showAsVisitor' => $showAsVisitor,
         ]);
     }
     /**
@@ -423,7 +489,14 @@ class UniversController extends AbstractController
 
         // check si l'user connecté est l'admin de l'univers
         ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        
+        if($isCreator == false){
+           // INSERER ALERT danger 
+            $this->addFlash(
+                'danger',
+                'Vous venez souvent par ici?'
+            );
+            return $this->redirectToRoute('dashboard'); 
+        }
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($content);
         $entityManager->flush();
@@ -436,5 +509,17 @@ class UniversController extends AbstractController
         return $this->redirectToRoute('univers_gestion', [
             'id' => $universe->getId(),
         ]);
+    }
+    public function checkIfRedactor(User $user, Univers $universe){
+        $userUnivers = $user->getUserUnivers();
+
+        foreach($userUnivers as $uU){
+            if($uU->getUnivers() == $universe){
+                if($uU->getNameRole() === 'redactor'){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

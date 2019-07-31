@@ -9,16 +9,6 @@
 {% endblock %}
 
 {% block body %}
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success">
-            {{ message }}
-        </div>
-    {% endfor %}
-    {% for message in app.flashes('danger') %}
-        <div class="alert alert-danger">        
-            {{ message }}
-        </div>
-    {% endfor %}
     <div class="container-fluid">
         <div class="col-md-12">
             <div class="card">
@@ -28,7 +18,7 @@
                             <h1 class="title">Messagerie</h1>
                         </div>
                         <div class='col-md-4'>
-                            <button class='btn btn-info btn-lg'><i class="fa fa-lg fa-plus"></i></button>
+                            <a class='btn btn-info btn-lg' href='{{path('message_new')}}'><i class="fa fa-lg fa-plus"></i></a>
                         </div>
                 </div>
                 <div class="content">
@@ -44,7 +34,12 @@
                         <tbody>
                             {% for message in messages %}
                                 <tr>
-                                    <td>{{message.title}}</td>
+                                    <td>
+                                        {% if message.isRead == false %}
+                                            <span class="badge badge-danger">New</span>
+                                        {% endif %}
+                                        {{message.title}}
+                                    </td>
                                     <td>
                                         {% if message.isSystem == true %}
                                             Galactron
@@ -53,7 +48,12 @@
                                         {% endif %}
                                     </td>
                                     <td>{{message.createdAt | date("d/m/Y")}}</td>
-                                    <td><i>soon</i></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a class='btn btn-info' href="{{path('message_show', {'id': message.id } ) }}"><i class="fa fa-eye"></i></a>
+                                            <a class='btn btn-danger' href="{{path('message_delete', {'id': message.id } ) }}"><i class="fa fa-trash"></i></a>
+                                        </div>
+                                    </td>
                                 </tr>
                             {% else %}
                             <tr>

@@ -13,10 +13,12 @@
                         <h1>{{universe.name}}</h1>
                     </div>
 
-                    {% if isCreator == true %}
+                    {% if (isCreator == true) or  (isRedactor == true) %}
                         <div class='col-md-2 btn-group'>
                             <a href='{{ path('univers_gestion', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-clipboard"></i></a>
+                            {% if isCreator == true %}
                             <a href='{{ path('univers_parameters', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-cog"></i></a>
+                            {% endif %}
                         </div>
                     {% endif %}
                 </div>

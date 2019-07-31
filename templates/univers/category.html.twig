@@ -14,11 +14,13 @@
                     </div>
                     
                     <div class='col-md-4 btn-group'>
-                        {% if isCreator == true %}
+                        {% if (isCreator == true) or (isRedactor == true ) %}
                                 <a href='{{ path('univers_gestion', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-clipboard"></i></a>
-                                <a href='{{ path('univers_parameters', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-cog"></i></a>
+                                {% if isCreator == true %}
+                                    <a href='{{ path('univers_parameters', {'id': universe.id}) }}' class='btn btn-success'><i class="fa fa-cog"></i></a>
+                                {% endif %}
                         {% endif %}
-                            <a href='{{ path('univers_show', {'id': universe.id}) }}' class='btn btn-secondary'>Retour</a>
+                            <a href='{{app.request.headers.get('referer')}}' class='btn btn-secondary'>Retour</a>
                     </div>
                 </div>
             </div>

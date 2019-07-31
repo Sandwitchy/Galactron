@@ -164,7 +164,7 @@
                                   Ce message vous à été envoyé car {{fromUser.username}} souhaite que vous deveniez rédacteur au sein de son univers {{univers.name}}. Si vous acceptez, vous pourrez créer du contenu au sein de {{univers.name}}
                                   sans restriction. Mais n'oubliez pas, {{fromUser.username}} est tout puissant au sein de {{univers.name}} ne vous le mettez pas à dos.
                                   <br><br>
-                                  Dans le cas ou vous ne souhaitez pas devenir rédacteur vous pouvez toujours supprimer ce message :)
+                                  Dans le cas ou vous ne souhaitez pas devenir rédacteur vous pouvez toujours ignorer ce message :)
                                   <br><br>
                                   Amusez-vous bien ! :)
                                 </td>
@@ -179,7 +179,7 @@
                                         <table border="0" cellspacing="0" cellpadding="0">
                                           <tr>
                                             <td align="left" style="border-radius: 3px;" bgcolor="#17bef7">
-                                              <a class="button raised" href="" target="_blank" style="font-size: 14px; line-height: 14px; font-weight: 500; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 3px; padding: 10px 25px; border: 1px solid #17bef7; display: inline-block;">Je vends mon âme à {{fromUser.username}}</a>
+                                              <a class="button raised" href="{{path('promoteUser', {'id': univers.id})}}" style="font-size: 14px; line-height: 14px; font-weight: 500; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 3px; padding: 10px 25px; border: 1px solid #17bef7; display: inline-block;">Je vends mon âme à {{fromUser.username}}</a>
                                             </td>
                                           </tr>
                                         </table>
