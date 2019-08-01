@@ -89,7 +89,7 @@ class UniversController extends AbstractController
             $entityManager->persist($contentType);
         }
         $entityManager->flush();
-
+        
 
         $user = $security->getUser();
         
@@ -218,7 +218,7 @@ class UniversController extends AbstractController
                 'id' => $universe->getId(),
             ]);
         }
-
+        
         // ajout d'un ContentType
         if($request->request->get('contentTypeName') !== null){
             $contentType = new ContentType();
@@ -238,18 +238,79 @@ class UniversController extends AbstractController
                 'id' => $universe->getId(),
             ]);
         }
+        
         //récupération de la liste des rédacteurs
         $users = $universe->getUserUnivers();
+        $redactors = array();
         foreach($users as $use){
             if($use->getNameRole() === 'redactor'){
                 $redactors[] = $use->getUser();
             }
+        }
+        //update ContentType
+        if($request->request->get('nameContentType') !== null){
+            $name = $request->request->get('nameContentType');
+            $id = $request->request->get('idContentType');
+            $contentType = $this->getDoctrine()
+                            ->getRepository(ContentType::class)
+                            ->find($id);
+            $contentType -> setName($name);
+
+            $entityManager->persist($contentType);
+            $entityManager->flush();
+             // INSERER ALERT SUCCESS 
+             $this->addFlash(
+                'success',
+                'La catégorie a bien été mise à jour !'
+            );
+
+            return $this->redirectToRoute('univers_parameters', [
+                'id' => $universe->getId(),
+            ]);
+
         }
         return $this->render('univers/parameters.html.twig', [
             'universe' => $universe,
             'isCreator' => $isCreator,
             'redactors' => $redactors,
         ]);
+    }
+     /**
+     * @Route("univers/deletecategory/{id}", name="category_delete", methods={"GET"})
+     * 
+    */
+    public function deleteCategory(ContentType $contentType,Security $security)
+    {
+        $user = $security->getUser();
+        $universe = $contentType -> getUnivers();
+        if($universe->getCreator() == $user){
+            $contents = $contentType->getContents();
+
+            $entityManager = $this->getDoctrine()->getManager();
+            foreach($contents as $content){
+                $content->setContentType(null);
+                $entityManager -> persist($content);
+            }
+
+            $entityManager->remove($contentType);
+
+            $entityManager->flush();
+             // INSERER ALERT danger 
+             $this->addFlash(
+                'danger',
+                'La catégories à bien été supprimer. Si du contenu appartenait à cet catégories, ils sont maintenant sans catégories.'
+            );
+            return $this->redirectToRoute('univers_parameters', [
+                'id' => $universe->getId(),
+            ]);
+        }
+         // INSERER ALERT danger 
+         $this->addFlash(
+            'danger',
+            "Tu essaies d'accomplir quelque chose ?"
+            );
+        return $this->redirectToRoute('dashboard');
+
     }
     /**
      * @Route("univers/delete/{id}", name="univers_delete", methods={"GET"})

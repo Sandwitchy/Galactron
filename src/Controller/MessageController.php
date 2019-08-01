@@ -18,8 +18,9 @@ class MessageController extends AbstractController
     public function index(Security $security)
     {
         $user = $security->getUser();
-        $messages = $user -> getMessages();
-
+        $messages = $this ->getDoctrine()
+                            ->getRepository(Message::class)
+                            ->findBy(['toUser' => $user->getId()],['createdAt' => "ASC"]);
         
         return $this->render('message/index.html.twig', [
             'messages' => $messages,

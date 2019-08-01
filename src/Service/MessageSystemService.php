@@ -39,12 +39,20 @@ class MessageSystemService
                                         ),
                                         'text/html'
                                     );
-        $userUnivers = new UserUnivers();
-        $userUnivers -> setUser($user)
-                     -> setUnivers($universe)
-                     -> setNameRole('waiting_promote');
+        $entityManager = $this->manager;                
+        $userUnivers = $entityManager->getRepository(UserUnivers::class)
+                        ->findOneBy([
+                            'User' => $user->getId(),
+                            'Univers' => $universe->getId()
+                        ]);
+        if($userUnivers == null){
+            $userUnivers -> setUser($user)
+            -> setUnivers($universe)
+            -> setNameRole('waiting_promote');
+        }else{
+            $userUnivers -> setNameRole('waiting_promote');
+        }
         
-        $entityManager = $this->manager;
         $entityManager->persist($invitation);
         $entityManager->persist($userUnivers);
         $entityManager->flush();

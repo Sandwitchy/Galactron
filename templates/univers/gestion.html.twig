@@ -62,10 +62,10 @@
                                         <button class="btn btn-danger" ><i class="fa fa-thumbs-down"></i></button>
                                     {% endif %}
                                 </td>
-                                <td>{{ content.createdAt | date("d/m/Y")}} </td>
+                                <td>{{ content.createdAt | date("d/m/Y H:i")}} </td>
                                 <td>
                                     {% if content.updatedAt %}
-                                        {{ content.updatedAt | date("d/m/Y")}} 
+                                        {{ content.updatedAt | date("d/m/Y H:i")}} 
                                     {% else %}
                                         Jamais modifié
                                     {% endif %}

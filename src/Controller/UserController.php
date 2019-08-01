@@ -8,6 +8,8 @@ use App\Form\UserType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
 use App\Entity\Univers;
+use App\Entity\UserUnivers;
+use App\Entity\Message;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -52,18 +54,35 @@ class UserController extends AbstractController
     /**
      * @Route("/parameter", name="parameter_user", methods={"POST","GET"})
      */
-    public function parameter(Request $request, UserPasswordEncoderInterface $passwordEncoder)
+    public function parameter(Request $request,Security $security, UserPasswordEncoderInterface $passwordEncoder,FileUploader $fileUploader)
     {
         
         // 1) build the form
-        $user = new User();
+        $user = $security -> getUser();
         $form = $this->createForm(UserType::class, $user);
 
         // 2) handle the submit (will only happen on POST)
         $form->handleRequest($request);
 
-        if($request){
-            dump($request);
+        if($request->files->get('image') !== null){
+            $image = $request->files->get('image');
+            if($image !== $user->getImage()){
+
+                $nameFile = $fileUploader->upload($image);
+                $user -> setImage($nameFile);
+                // 4) save the User!
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($user);
+                $entityManager->flush();
+
+                // INSERER ALERT SUCCESS 
+                 // ERREUR
+                $this->addFlash(
+                    'success',
+                    'Votre image à bien été mise à jour'
+                );
+                return $this->redirectToRoute('parameter_user');
+            }
         }
         if ($form->isSubmitted() && $form->isValid()) {
             
@@ -77,8 +96,12 @@ class UserController extends AbstractController
             $entityManager->flush();
 
             // INSERER ALERT SUCCESS 
-
-            return $this->redirectToRoute('dashboard');
+             // ERREUR
+             $this->addFlash(
+                'success',
+                'Vos imformation ont bien été mise à jour'
+            );
+            return $this->redirectToRoute('parameter_user');
         }
         return $this->render('user/user.html.twig',[
             'form' => $form->createView(),
@@ -114,6 +137,7 @@ class UserController extends AbstractController
         $user = $security->getUser();
         
         $userUnivers = $user->getUserUnivers();
+        
         foreach($userUnivers as $uU){
             if($uU->getnameRole() === 'waiting_promote'){
                 if($uU->getUnivers() == $universe){
@@ -139,5 +163,60 @@ class UserController extends AbstractController
         );
         return $this->redirectToRoute('dashboard');
             
+    }
+    /**
+     * @Route("univers/deleteRedactor/{id}/{idUnivers}", name="redactor_delete", methods={"GET"})
+     * 
+    */
+    public function deleteRedactor(User $user,$idUnivers,Security $security)
+    {
+        $userAdmin = $security->getuser();
+        $universe = $this->getDoctrine()
+                        ->getRepository(Univers::class)
+                        ->find($idUnivers);
+        if($universe->getCreator() == $userAdmin){
+            
+            $uU = $this->getDoctrine()
+            ->getRepository(UserUnivers::class)
+            ->findOneBy([
+                'User' => $user->getId(),
+                'Univers' => $universe->getId()
+            ]);
+            $uU -> setNameRole("visitor");
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($uU);
+
+            //notification envoyé à l'user rétrogradé
+            $message = new Message();
+            $message->setToUser($user)
+                    ->setTitle('Rétrogradé de '.$universe->getName())
+                    ->setIsRead(false)
+                    ->setIsSystem(true)
+                    ->setContent("
+                            Nous sommes dans le regret de vous annoncé que vous avez été rétrogradé. Ce qui signifie que vous n'êtes plus rédacteur au sein de ".
+                            $universe->getName().". Nous sommes navrés que votre collaboration avec ". $universe->getCreator()." ce termine maintenant.
+                    ");
+
+            $entityManager->persist($message);
+
+            $entityManager->flush();
+
+            // INSERER ALERT danger 
+            $this->addFlash(
+                'danger',
+                'Le rédacteur a bien été rétrogradé. Il sera notifié de votre décision'
+            );
+            return $this->redirectToRoute('univers_parameters', [
+                'id' => $universe->getId(),
+            ]);
+        }
+         // INSERER ALERT danger 
+         $this->addFlash(
+            'danger',
+            "Tu essaies d'accomplir quelque chose ?"
+            );
+        return $this->redirectToRoute('dashboard');
+
     }
 }
