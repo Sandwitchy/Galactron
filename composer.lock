@@ -2625,16 +2625,16 @@
         },
         {
             "name": "symfony/dotenv",
-            "version": "v4.2.4",
+            "version": "v4.2.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dotenv.git",
-                "reference": "9a3bdfcd7a0d9602754894d76c614d15ca366535"
+                "reference": "6163f061011009655da1bc615b38941bc460ef1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dotenv/zipball/9a3bdfcd7a0d9602754894d76c614d15ca366535",
-                "reference": "9a3bdfcd7a0d9602754894d76c614d15ca366535",
+                "url": "https://api.github.com/repos/symfony/dotenv/zipball/6163f061011009655da1bc615b38941bc460ef1b",
+                "reference": "6163f061011009655da1bc615b38941bc460ef1b",
                 "shasum": ""
             },
             "require": {
@@ -2678,7 +2678,7 @@
                 "env",
                 "environment"
             ],
-            "time": "2019-01-24T21:39:51+00:00"
+            "time": "2019-06-26T06:46:55+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
