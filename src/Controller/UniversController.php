@@ -217,7 +217,8 @@ class UniversController extends AbstractController
         if($request->request->get('contentTypeName') !== null){
             $contentType = new ContentType();
             $contentType->setName($request->request->get('contentTypeName'))
-                        ->setUnivers($universe);
+                        ->setUnivers($universe)
+                        ->setNbrContents();
 
             $entityManager->persist($contentType);
             $entityManager->flush();
