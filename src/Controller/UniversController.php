@@ -90,8 +90,13 @@ class UniversController extends AbstractController
                     );
         
         // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        $isRedactor = $this->checkIfRedactor($user,$universe);
+        if($user !== null){
+            ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
+            $isRedactor = $this->checkIfRedactor($user,$universe);
+        }else{
+            $isRedactor = false;
+            $isCreator = false;
+        }
         return $this->render('univers/show.html.twig', [
             'universe' => $universe,
             'contents' => $contents,
@@ -212,7 +217,8 @@ class UniversController extends AbstractController
         if($request->request->get('contentTypeName') !== null){
             $contentType = new ContentType();
             $contentType->setName($request->request->get('contentTypeName'))
-                        ->setUnivers($universe);
+                        ->setUnivers($universe)
+                        ->setNbrContents();
 
             $entityManager->persist($contentType);
             $entityManager->flush();
