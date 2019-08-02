@@ -26,17 +26,6 @@ class UniversController extends AbstractController
         $universe = new Univers();
         $user = $security->getUser();
 
-        // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        $isRedactor = $this->checkIfRedactor($user,$universe);
-        if(($isCreator == false)&&($isRedactor == false)){
-            $this->addFlash(
-                'danger',
-                "Vous n'avez pas les droits d'accès à cette page."
-            );
-            return $this->redirectToRoute('dashboard');
-        }
-
         if ($request->request->get('name') !== null) {
 
             $universe   -> setName($request->request->get('name')) 
