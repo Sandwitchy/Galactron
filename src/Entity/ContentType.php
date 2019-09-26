@@ -33,9 +33,20 @@ class ContentType extends DefaultObject
      */
     private $nbrContents;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\ContentType")
+     */
+    private $ContentTypes;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isMain;
+
     public function __construct()
     {
         $this->contents = new ArrayCollection();
+        $this->ContentTypes = new ArrayCollection();
     }
 
     public function __toString()
@@ -115,6 +126,44 @@ class ContentType extends DefaultObject
             }
         }
         $this->nbrContents = $lenght;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getContentTypes(): Collection
+    {
+        return $this->ContentTypes;
+    }
+
+    public function addContentType(self $contentType): self
+    {
+        if (!$this->ContentTypes->contains($contentType)) {
+            $this->ContentTypes[] = $contentType;
+        }
+
+        return $this;
+    }
+
+    public function removeContentType(self $contentType): self
+    {
+        if ($this->ContentTypes->contains($contentType)) {
+            $this->ContentTypes->removeElement($contentType);
+        }
+
+        return $this;
+    }
+
+    public function getIsMain(): ?bool
+    {
+        return $this->isMain;
+    }
+
+    public function setIsMain(bool $isMain): self
+    {
+        $this->isMain = $isMain;
 
         return $this;
     }
