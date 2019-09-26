@@ -181,7 +181,7 @@ class UniversController extends AbstractController
                 'id' => $universe->getId(),
             ]);
         }
-
+        // envoie invit redactor
         if ($request->request->get('userId') != null) {
             if($request->request->get('userName') != null){
                 $userId = $request->request->get('userId');

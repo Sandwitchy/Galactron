@@ -46,6 +46,7 @@ class MessageSystemService
                             'Univers' => $universe->getId()
                         ]);
         if($userUnivers == null){
+            $userUnivers = new UserUnivers();
             $userUnivers -> setUser($user)
             -> setUnivers($universe)
             -> setNameRole('waiting_promote');
