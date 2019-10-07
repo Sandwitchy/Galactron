@@ -48,11 +48,11 @@
                                     {{content.name}}
                                 </td>
                                 <td>
-                                    {% if not content.contentType %}
+                                    {% for  contentType in content.contentTypes %}
+                                        {{contentType}}
+                                    {% else %} 
                                         Aucune catégorie
-                                    {% else %}
-                                        {{content.contentType}}
-                                    {% endif %}
+                                    {% endfor %}
                                 </td>
                                 <td>{{ content.author }}</td>
                                 <td>

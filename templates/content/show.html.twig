@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-
+ {# TODO refactor this shit #}
 {% block body %}
 {% if (isCreator == true) or (isRedactor == true) and (showAsVisitor == false) %}
     <div class="container-fluid">
@@ -54,11 +54,11 @@
                         <br>
                         <label>Catégorie du contenu</label>
                         <br>
-                        {% if content.contentType %}
+                        {% for contentType in content.contentTypes %}
                             {{content.contentType}}
                         {% else %}
                             Aucune catégories
-                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
                 <!-- end row -->
@@ -112,11 +112,11 @@
                     <div class='col-md-4'>
                         <label>Catégorie du contenu</label>
                         <br>
-                        {% if content.contentType %}
+                        {% for  contentType in content.contentTypes %}
                             {{content.contentType}}
                         {% else %}
                             Aucune catégories
-                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
                 <!-- end row -->

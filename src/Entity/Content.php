@@ -42,10 +42,10 @@ class Content extends DefaultObject
     private $content;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ContentType", inversedBy="contents")
+     * @ORM\ManyToMany(targetEntity="App\Entity\ContentType", inversedBy="contents")
      * @ORM\JoinColumn(nullable=true)
      */
-    private $contentType;
+    private $contentTypes;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Univers", inversedBy="contents")
@@ -125,14 +125,28 @@ class Content extends DefaultObject
         return $this;
     }
 
-    public function getContentType(): ?ContentType
+    /**
+     * @return Collection|self[]
+     */
+    public function getContentTypes(): Collection
     {
-        return $this->contentType;
+        return $this->ContentTypes;
     }
 
-    public function setContentType(?ContentType $contentType): self
+    public function addContentType(self $contentType): self
     {
-        $this->contentType = $contentType;
+        if (!$this->ContentTypes->contains($contentType)) {
+            $this->ContentTypes[] = $contentType;
+        }
+
+        return $this;
+    }
+
+    public function removeContentType(self $contentType): self
+    {
+        if ($this->ContentTypes->contains($contentType)) {
+            $this->ContentTypes->removeElement($contentType);
+        }
 
         return $this;
     }
