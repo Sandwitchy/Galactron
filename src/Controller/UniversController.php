@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Form\UniversCreateType;
+use App\Service\Security\RoleChecker;
 use App\Service\Univers\UniversCreator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -41,12 +42,18 @@ class UniversController extends AbstractController
             'form' => $form->createView()
         ]);
     }
+
     /**
      * @Route("univers/{id}", name="univers_show", methods={"GET"})
-    */
-    public function show(Univers $universe,Security $security)
+     * @param Univers $universe
+     * @param Security $security
+     * @param RoleChecker $roleChecker
+     * @return Response
+     */
+    public function show(Univers $universe,Security $security,RoleChecker $roleChecker)
     {
         // met a jour le nombre de content public
+        //TODO: refactor this
         $contentTypes = $this->getDoctrine()
                             ->getRepository(ContentType::class)
                             ->findAll();
@@ -56,10 +63,8 @@ class UniversController extends AbstractController
             $entityManager->persist($contentType);
         }
         $entityManager->flush();
-        
 
-        $user = $security->getUser();
-        
+
         $contents = $this->getDoctrine()
                     ->getRepository(Content::class)
                     ->findBy(
@@ -67,26 +72,19 @@ class UniversController extends AbstractController
                         'univers' => $universe->getId()]
                     );
         
-        // check si l'user connecté est l'admin de l'univers
-        if($user !== null){
-            ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-            $isRedactor = $this->checkIfRedactor($user,$universe);
-        }else{
-            $isRedactor = false;
-            $isCreator = false;
-        }
+        $roles  = $roleChecker->check($this->getUser(),$universe);
         return $this->render('univers/show.html.twig', [
             'universe' => $universe,
             'contents' => $contents,
-            'isCreator' => $isCreator,
-            'isRedactor' => $isRedactor,
+            'isCreator' => $roles[0],
+            'isRedactor' => $roles[1],
         ]);
     }
 
      /**
      * @Route("univers/{id}/categorie/{idCat}", name="univers_category", methods={"GET"})
     */
-    public function categorie(Univers $universe,Security $security,$idCat)
+    public function categorie(Univers $universe,Security $security,$idCat,RoleChecker $roleChecker)
     {
         // met a jour le nombre de content public
         $contentType = $this->getDoctrine()
@@ -98,33 +96,32 @@ class UniversController extends AbstractController
                                 ['isPrivate' => false,
                                 'contentType' => $contentType->getId()]
                             );
-        $user = $security->getUser();
-        
-        // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        $isRedactor = $this->checkIfRedactor($user,$universe);
+
+        $roles  = $roleChecker->check($this->getUser(),$universe);
 
         return $this->render('univers/category.html.twig', [
             'universe' => $universe,
             'contentType' => $contentType,
             'contents' => $contents,
-            'isCreator' => $isCreator,
-            'isRedactor' => $isRedactor
+            'isCreator' => $roles[0],
+            'isRedactor' => $roles[1]
         ]);
     }
     /**
      * @Route("univers/{id}/parameters", name="univers_parameters", methods={"GET","POST"})
      * 
     */
-    public function edit(Univers $universe,Security $security,Request $request,FileUploader $fileUploader,MessageSystemService $messSystem)
+    public function edit(Univers $universe,
+                         Security $security,
+                         Request $request,
+                         FileUploader $fileUploader,
+                         MessageSystemService $messSystem,
+                         RoleChecker $roleChecker)
     {
-        $user = $security->getUser();
         $entityManager = $this->getDoctrine()->getManager();
 
-        // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        $isRedactor = $this->checkIfRedactor($user,$universe);
-        if(($isCreator == false)&&($isRedactor == false)){
+        $roles  = $roleChecker->check($this->getUser(),$universe);
+        if(!$roles[0] && !$roles[1]){
             $this->addFlash(
                 'danger',
                 "Vous n'avez pas les droits d'accès à cette page."
@@ -133,16 +130,14 @@ class UniversController extends AbstractController
         }
 
         // update des infos de base de l'univers
-        if ($request->request->get('name') !== null) {
-            $universe -> setName($request->request->get('name'));
-            $universe -> setCreator($user);
+        $formUnivers = $this->createForm(UniversCreateType::class,null,['update' => true]);
 
-            ($request->request->get('isPrivate') == true)? $universe -> setIsPrivate(true) : $universe -> setIsPrivate(false);
+        $formUnivers->handleRequest($request);
+        if ($formUnivers->isSubmitted() && $formUnivers->isValid()) {
+            $universe = $formUnivers->getData();
+
             if($request->files->get('image') !== null){
-
-                $file = $request->files->get('image');
-                $nameFile = $fileUploader->upload($file);
-
+                $nameFile = $fileUploader->upload($request->files->get('image'));
                 $universe -> setImage($nameFile);
             }
 
@@ -244,8 +239,9 @@ class UniversController extends AbstractController
         }
         return $this->render('univers/parameters.html.twig', [
             'universe' => $universe,
-            'isCreator' => $isCreator,
-            'redactors' => $redactors,
+            "formUnivers" => $formUnivers->createView(),
+            'isCreator' => $roles[0],
+            'redactors' => $roles[1],
         ]);
     }
      /**
@@ -544,6 +540,7 @@ class UniversController extends AbstractController
             'id' => $universe->getId(),
         ]);
     }
+    //useless
     public function checkIfRedactor(User $user, Univers $universe){
         $userUnivers = $user->getUserUnivers();
 
