@@ -2,17 +2,18 @@
 
 namespace App\Controller;
 
+use App\Form\UniversCreateType;
+use App\Service\Univers\UniversCreator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use App\Entity\Univers;
-use App\Entity\UserUnivers;
 use App\Entity\User;
 use App\Entity\ContentType;
 use App\Entity\Content;
-use App\Entity\Message;
-use App\Form\UserType;
 use App\Service\FileUploader;
 use App\Service\MessageSystemService;
 
@@ -20,47 +21,24 @@ class UniversController extends AbstractController
 {
     /**
      * @Route("/new_universe", name="create_universe")
+     * @param Request $request
+     * @param UniversCreator $creator
+     * @return RedirectResponse|Response
      */
-    public function create(Request $request ,Security $security ,FileUploader $fileUploader)
+    public function create(Request $request ,UniversCreator $creator)
     {
-        $universe = new Univers();
-        $user = $security->getUser();
+        $form = $this->createForm(UniversCreateType::class);
 
-        if ($request->request->get('name') !== null) {
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $univers = $form->getData();
+            $creator->createUnivers($univers,$this->getUser(),$request->files->get('image'));
 
-            $universe   -> setName($request->request->get('name')) 
-                        -> setCreator($user)
-                        -> setIsPrivate(true);
-            if($request->files->get('image') !== null){
-
-                $file = $request->files->get('image');
-                $nameFile = $fileUploader->upload($file);
-
-                $universe -> setImage($nameFile);
-            }else{
-                $universe -> setImage("default.png");
-            }
-            
-        //  4) save the Universe!
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($universe);
-
-            $userUnivers = new UserUnivers();
-            $userUnivers->setUser($user)
-                        ->setNameRole('creator')
-                        ->setUnivers($universe);
-
-            $entityManager->persist($userUnivers);
-            
-            $entityManager->flush();
-
-             // INSERER ALERT SUCCESS 
-
-             return $this->redirectToRoute('dashboard');
+            $this->addFlash("success","L'univers à été créer !");
+            return $this->redirectToRoute('dashboard');
         }
-        return $this->render('univers/index.html.twig', [
-            'isCreator' => $isCreator,
-            'isRedactor' => $isRedactor
+        return $this->render('univers/index.html.twig',[
+            'form' => $form->createView()
         ]);
     }
     /**
