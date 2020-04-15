@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Form\UniversCreateType;
+use App\Form\UniversType;
 use App\Service\Security\RoleChecker;
 use App\Service\Univers\UniversCreator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,7 +28,7 @@ class UniversController extends AbstractController
      */
     public function create(Request $request ,UniversCreator $creator)
     {
-        $form = $this->createForm(UniversCreateType::class);
+        $form = $this->createForm(UniversType::class);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -130,7 +130,7 @@ class UniversController extends AbstractController
         }
 
         // update des infos de base de l'univers
-        $formUnivers = $this->createForm(UniversCreateType::class,null,['update' => true]);
+        $formUnivers = $this->createForm(UniversType::class,null,['update' => true]);
 
         $formUnivers->handleRequest($request);
         if ($formUnivers->isSubmitted() && $formUnivers->isValid()) {
