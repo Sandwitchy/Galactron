@@ -55,73 +55,8 @@
                             {{ form_end(formUnivers) }}
                         </div>
                         <div class='row'>
-                            <div class='col-md-6'>
-                                <h3>Catégories</h3>
-                                <div class='container-fluid'>
-                                    <form method='post'>
-                                        <label>Ajouter une catégorie</label>
-                                    <div class='row'>
-                                        <div class='col-md-4'>
-                                            <input type='text' name='contentTypeName' class='form-control'>
-                                        </div>
-                                        <div class='col-md-2'>
-                                            <button type='submit' class='btn btn-success'><i class="fa fa-plus"></i></button>
-                                        </div>
-                                    </div>
-                                    </form>
-                                    <table class='table table-striped'>
-                                        <tr>
-                                            <th>Nom</th>
-                                            <th>Options</th>
-                                        </tr>
-                                        {% for contentType in universe.contentTypes %}
-                                            <tr>
-                                                <td  id="{{contentType.id}}">{{contentType.name}}</td>
-                                                <td>
-                                                    <button onclick='update({{contentType.id}})' class='btn btn-info'><i class="fa fa-edit"></i></button>
-                                                    <a href='{{ path('category_delete', {'id': contentType.id})}}' class='btn btn-danger'><i class="fa fa-trash"></i></a>
-                                                </td>
-                                            </tr>
-                                        {% else %}
-                                            <tr>
-                                                <td colspan='2'>Aucune catégorie créé...</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </table>
-                                </div>
-                            </div>
-                            <div class='col-md-6'>
-                                <h3>Rédacteur</h3>
-                                <div class='container-fluid'>
-                                    <form method='post'>
-                                        <label>Ajouter un rédacteur</label>
-                                    <div class='row'>
-                                        <div class='col-md-2'>
-                                            <img src='{{asset('image-user/blank.png')}}' style='height:45px; width:45px;border-radius:25%;border: 2px grey solid' id='user-icon'>
-                                        </div>
-                                        <div class='col-md-8'>
-                                            <input class="form-control" id="user" name='userName' type="text">   
-                                            <input type='hidden' id='user-id' name='userId'>                                         
-                                        </div>
-                                        <div class='col-md-2'>
-                                            <button type='submit' class='btn btn-success'><i class="fa fa-plus"></i></button>
-                                        </div>
-                                    </div>
-                                    </form>
-                                    <table class='table table-striped'>
-                                        <tr>
-                                            <th>Nom</th>
-                                            <th>Options</th>
-                                        </tr>
-                                        {% for redactor in redactors %}
-                                            <tr>
-                                                <td><img src="{{asset('image-user/')~ redactor.image }}" style='height:35px; width:auto;border-radius:25%;border: 2px grey solid'> {{redactor.username}}</td>
-                                                <td><a href='{{path('redactor_delete',{'id': redactor.id, 'idUnivers': universe.id })}}' class='btn btn-danger'><i class="fa fa-trash"></i></a></td>
-                                            </tr>
-                                        {% endfor %}
-                                    </table> 
-                                </div>
-                            </div>
+                            {% include  "univers/options/gestion_category.html.twig" with {"universe" : universe}  %}
+                            {% include  "univers/options/redactor_invite.html.twig" with {'redactors' : redactors,"universe" : universe}  %}
                         </div>
                         <!-- row -->
                     </div>

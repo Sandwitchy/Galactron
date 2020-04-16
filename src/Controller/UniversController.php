@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Form\UniversType;
 use App\Service\Security\RoleChecker;
+use App\Service\Univers\RedactorManager;
 use App\Service\Univers\UniversCreator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -107,16 +108,25 @@ class UniversController extends AbstractController
             'isRedactor' => $roles[1]
         ]);
     }
+
     /**
      * @Route("univers/{id}/parameters", name="univers_parameters", methods={"GET","POST"})
-     * 
-    */
+     * @param Univers $universe
+     * @param Security $security
+     * @param Request $request
+     * @param FileUploader $fileUploader
+     * @param MessageSystemService $messSystem
+     * @param RoleChecker $roleChecker
+     * @param RedactorManager $redactorManager
+     * @return RedirectResponse|Response
+     */
     public function edit(Univers $universe,
                          Security $security,
                          Request $request,
                          FileUploader $fileUploader,
                          MessageSystemService $messSystem,
-                         RoleChecker $roleChecker)
+                         RoleChecker $roleChecker,
+                         RedactorManager $redactorManager)
     {
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -128,14 +138,16 @@ class UniversController extends AbstractController
             );
             return $this->redirectToRoute('dashboard');
         }
-
+        //---------------------------------------------
         // update des infos de base de l'univers
+        //---------------------------------------------
         $formUnivers = $this->createForm(UniversType::class,null,['update' => true]);
 
         $formUnivers->handleRequest($request);
         if ($formUnivers->isSubmitted() && $formUnivers->isValid()) {
             $universe = $formUnivers->getData();
 
+            //TODO : improve this code ...
             if($request->files->get('image') !== null){
                 $nameFile = $fileUploader->upload($request->files->get('image'));
                 $universe -> setImage($nameFile);
@@ -154,39 +166,25 @@ class UniversController extends AbstractController
                 'id' => $universe->getId(),
             ]);
         }
+        //---------------------------------------------
         // envoie invit redactor
+        //---------------------------------------------
+
         if ($request->request->get('userId') != null) {
-            if($request->request->get('userName') != null){
-                $userId = $request->request->get('userId');
-                $newRedacteur = $this->getDoctrine()
-                                    ->getRepository(User::class)
-                                    ->find($userId);
-                if($newRedacteur->getUsername() == ($request->request->get('userName'))){
-
-                    $messSystem -> sendPromoteRedactor($newRedacteur,$user,$universe);
-
-                     // Success
-                    $this->addFlash(
-                        'success',
-                        "L'utilisateur ".$newRedacteur->getUsername()." va recevoir une invitation pour devenir rédacteur de ". $universe->getName()
-                    );
-                    return $this->redirectToRoute('univers_parameters', [
-                        'id' => $universe->getId(),
-                    ]);
-                }
-                
-            }
-            // ERREUR
+            $redactorManager->promote($request->request->get('userId'),$this->getUser(),$universe);
+             // Success
             $this->addFlash(
-                'danger',
-                'Une erreur est survenue, veuillez réessayez'
+                'success',
+                "L'utilisateur va recevoir une invitation pour devenir rédacteur de ". $universe->getName()
             );
+
             return $this->redirectToRoute('univers_parameters', [
                 'id' => $universe->getId(),
             ]);
         }
-        
+        //---------------------------------------------
         // ajout d'un ContentType
+        //---------------------------------------------
         if($request->request->get('contentTypeName') !== null){
             $contentType = new ContentType();
             $contentType->setName($request->request->get('contentTypeName'))
@@ -206,15 +204,7 @@ class UniversController extends AbstractController
                 'id' => $universe->getId(),
             ]);
         }
-        
-        //récupération de la liste des rédacteurs
-        $users = $universe->getUserUnivers();
-        $redactors = array();
-        foreach($users as $use){
-            if($use->getNameRole() === 'redactor'){
-                $redactors[] = $use->getUser();
-            }
-        }
+
         //update ContentType
         if($request->request->get('nameContentType') !== null){
             $name = $request->request->get('nameContentType');
@@ -237,11 +227,13 @@ class UniversController extends AbstractController
             ]);
 
         }
+
+        $redactors = $redactorManager->fetchRedactor($universe);
         return $this->render('univers/parameters.html.twig', [
             'universe' => $universe,
             "formUnivers" => $formUnivers->createView(),
             'isCreator' => $roles[0],
-            'redactors' => $roles[1],
+            'redactors' => $redactors,
         ]);
     }
      /**
@@ -334,212 +326,7 @@ class UniversController extends AbstractController
             'isRedactor' => $isRedactor
         ]);
     }
-    /**
-     * @Route("univers/{id}/gestion/new/", name="univers_new_content", methods={"GET","POST"})
-    */
-    public function newContent(Univers $universe,Security $security,Request $request,FileUploader $fileUploader)
-    {
-        // récupère les infos de l'user connecté
-        $user = $security->getUser();
 
-        $isRedactor = $this->checkIfRedactor($user,$universe);
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        if(($isRedactor == false)&&($isCreator == false)){
-           // INSERER ALERT SUCCESS 
-           $this->addFlash(
-            'danger',
-            'Vous faites quoi?'
-            );
-
-            return $this->redirectToRoute('dashboard'); 
-        }
-
-        if($request->request->get('name') !== null){
-            $content = new Content();
-
-            $content -> setName($request->request->get('name'))
-                     -> setContent($request->request->get('content'))
-                     -> setAuthor($user)
-                     -> setUnivers($universe);
-
-            ($request->request->get('isPrivate') == true)? $content->setIsPrivate(true) : $content->setIsPrivate(false);
-            if($request->request->get('description') !== null){
-                $content->setDescription($request->request->get('description'));
-            }
-            if($request->request->get('contentType') !== null){
-                $id = $request->request->get('contentType');
-                $contentType = $this->getDoctrine()
-                            ->getRepository(ContentType::class)
-                            ->find($id);
-                $content->setContentType($contentType);
-            }
-            if($request->files->get('image') !== null){
-
-                $file = $request->files->get('image');
-                $nameFile = $fileUploader->upload($file);
-
-                $content -> setImage($nameFile);
-            }
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($content);
-            $entityManager->flush();
-
-             // INSERER ALERT SUCCESS 
-             $this->addFlash(
-                'success',
-                'Votre contenu à bien été enregistré !'
-            );
-
-            return $this->redirectToRoute('univers_gestion', [
-                'id' => $universe->getId(),
-            ]);
-        }
-
-        return $this->render('content/new.html.twig', [
-            'universe' => $universe,
-            'isCreator' => $isCreator,
-            'isRedactor' => $isRedactor
-        ]);
-    }
-    /**
-     * @Route("univers/{id}/gestion/edit/{idContent}", name="univers_edit_content", methods={"GET","POST"})
-    */
-    public function editContent(Univers $universe,Security $security,Request $request,FileUploader $fileUploader,$idContent)
-    {
-        // récupère les infos de l'user connecté
-        $user = $security->getUser();
-        $content =  $this->getDoctrine()
-                    ->getRepository(Content::class)
-                    ->find($idContent);
-        // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        $isRedactor = $this->checkIfRedactor($user,$universe);
-
-        if(($isRedactor == false)&&($isCreator == false)){
-           // INSERER ALERT SUCCESS 
-           $this->addFlash(
-            'danger',
-            'Vous faites quoi?'
-            );
-
-            return $this->redirectToRoute('dashboard'); 
-        }
-        if($request->request->get('name') !== null){
-           
-
-            $content -> setName($request->request->get('name'))
-                     -> setContent($request->request->get('content'))
-                     -> setAuthor($user)
-                     -> setUnivers($universe);
-
-            ($request->request->get('isPrivate') == true)? $content->setIsPrivate(true) : $content->setIsPrivate(false);
-            if($request->request->get('description') !== null){
-                $content->setDescription($request->request->get('description'));
-            }
-            if($request->request->get('contentType') !== null){
-                $id = $request->request->get('contentType');
-                $contentType = $this->getDoctrine()
-                            ->getRepository(ContentType::class)
-                            ->find($id);
-                $content->setContentType($contentType);
-            }
-            if($request->files->get('image') !== null){
-
-                $file = $request->files->get('image');
-                $nameFile = $fileUploader->upload($file);
-
-                $content -> setImage($nameFile);
-            }
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($content);
-            $entityManager->flush();
-
-             // INSERER ALERT SUCCESS 
-             $this->addFlash(
-                'success',
-                'Votre contenu à bien été enregistré !'
-            );
-
-            return $this->redirectToRoute('univers_gestion', [
-                'id' => $universe->getId(),
-            ]);
-        }
-
-        return $this->render('content/edit.html.twig', [
-            'universe' => $universe,
-            'isCreator' => $isCreator,
-            'isRedactor' => $isRedactor,
-            'content' => $content
-        ]);
-    }
-    /**
-     * @Route("univers/{id}/gestion/show/{idContent}", name="univers_show_content", methods={"GET","POST"})
-    */
-    public function showContent(Univers $universe,Security $security,$idContent,Request $request)
-    {
-        // récupère les infos de l'user connecté
-        $user = $security->getUser();
-        $content =  $this->getDoctrine()
-                    ->getRepository(Content::class)
-                    ->find($idContent);
-        // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        $isRedactor = $this->checkIfRedactor($user,$universe);
-        $showAsVisitor = false;
-        if($request->isMethod('post')){
-            if($request->request->get('state') == null){
-                $showAsVisitor = true;
-            }elseif($request->request->get('state') == true){
-                $showAsVisitor = false;
-            }else{
-                $showAsVisitor = true;
-            }
-        }
-           
-        return $this->render('content/show.html.twig', [
-            'universe' => $universe,
-            'isCreator' => $isCreator,
-            'isRedactor' => $isRedactor,
-            'content' => $content,
-            'showAsVisitor' => $showAsVisitor,
-        ]);
-    }
-    /**
-     * @Route("univers/{id}/gestion/delete/{idContent}", name="univers_delete_content", methods={"GET"})
-    */
-    public function deleteContent(Univers $universe,Security $security,$idContent)
-    {
-        // récupère les infos de l'user connecté
-        $user = $security->getUser();
-        $content =  $this->getDoctrine()
-                    ->getRepository(Content::class)
-                    ->find($idContent);
-
-        // check si l'user connecté est l'admin de l'univers
-        ($universe->getCreator() == $user)? $isCreator = true :  $isCreator = false;
-        if($isCreator == false){
-           // INSERER ALERT danger 
-            $this->addFlash(
-                'danger',
-                'Vous venez souvent par ici?'
-            );
-            return $this->redirectToRoute('dashboard'); 
-        }
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->remove($content);
-        $entityManager->flush();
-
-         // INSERER ALERT danger 
-         $this->addFlash(
-            'danger',
-            'Votre contenu à bien été supprimé...'
-        );
-        return $this->redirectToRoute('univers_gestion', [
-            'id' => $universe->getId(),
-        ]);
-    }
     //useless
     public function checkIfRedactor(User $user, Univers $universe){
         $userUnivers = $user->getUserUnivers();
