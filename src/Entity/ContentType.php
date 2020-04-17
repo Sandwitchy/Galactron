@@ -27,7 +27,7 @@ class ContentType extends DefaultObject
      * @ORM\ManyToOne(targetEntity="App\Entity\Univers", inversedBy="contentTypes")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $Univers;
+    private $univers;
 
     /**
      * @ORM\Column(type="integer")
@@ -88,12 +88,12 @@ class ContentType extends DefaultObject
 
     public function getUnivers(): ?Univers
     {
-        return $this->Univers;
+        return $this->univers;
     }
 
     public function setUnivers(?Univers $Univers): self
     {
-        $this->Univers = $Univers;
+        $this->univers = $Univers;
 
         return $this;
     }
