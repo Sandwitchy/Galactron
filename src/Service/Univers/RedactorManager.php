@@ -23,7 +23,7 @@ class RedactorManager
      * @param User $userAdmin
      * @param Univers $univers
      */
-    public function promote($userId, User $userAdmin, Univers $univers){
+    public function sendPromoteMessage($userId, User $userAdmin, Univers $univers){
         if($user = $this->checker->checkUserById($userId)){
             $this->messSystem->sendPromoteRedactor($user,$userAdmin,$univers);
         }

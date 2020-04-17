@@ -171,7 +171,7 @@ class UniversController extends AbstractController
         //---------------------------------------------
 
         if ($request->request->get('userId') != null) {
-            $redactorManager->promote($request->request->get('userId'),$this->getUser(),$universe);
+            $redactorManager->sendPromoteMessage($request->request->get('userId'),$this->getUser(),$universe);
              // Success
             $this->addFlash(
                 'success',

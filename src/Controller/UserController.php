@@ -130,7 +130,7 @@ class UserController extends AbstractController
             return $this->json($json);        
     }
      /**
-     * @Route("/PromoteUser/{id}", name="promoteUser", methods={"GET"})
+     * @Route("/promoteuser/{id}", name="promoteUser", methods={"GET"})
      */
     public function promoteUser(Request $request, Security $security,Univers $universe)
     {
