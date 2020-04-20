@@ -15,22 +15,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  */
 class User implements UserInterface
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
-
-    /**
-     * @ORM\Column(type="datetime",nullable=true)
-     */
-    private $updatedAt;
+    use DefaultObject;
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank()

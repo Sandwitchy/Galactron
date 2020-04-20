@@ -8,9 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="App\Repository\ContentRepository")
  * @ORM\HasLifecycleCallbacks()
  */
-class Content extends DefaultObject
+class Content
 {
-
+    use DefaultObject;
     /**
      * @ORM\Column(type="string", length=255)
      */
