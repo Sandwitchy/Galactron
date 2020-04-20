@@ -9,9 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserUniversRepository")
  */
-class UserUnivers extends DefaultObject
+class UserUnivers
 {
-
+    use DefaultObject;
     /**
      * @ORM\Column(type="string", length=255)
      */
