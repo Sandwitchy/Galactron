@@ -34,7 +34,7 @@ class UniversController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $univers = $form->getData();
-            $creator->createUnivers($univers,$this->getUser(),$request->files->get('image'));
+            $creator->createUnivers($univers,$this->getUser(),$request->files->get("univers")['image']);
 
             $this->addFlash("success","L'univers à été créer !");
             return $this->redirectToRoute('dashboard');
@@ -327,17 +327,4 @@ class UniversController extends AbstractController
         ]);
     }
 
-    //useless
-    public function checkIfRedactor(User $user, Univers $universe){
-        $userUnivers = $user->getUserUnivers();
-
-        foreach($userUnivers as $uU){
-            if($uU->getUnivers() == $universe){
-                if($uU->getNameRole() === 'redactor'){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }
