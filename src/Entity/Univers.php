@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UniversRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Univers
 {
@@ -39,7 +40,7 @@ class Univers
     private $contents;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ContentType", mappedBy="Univers", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\ContentType", mappedBy="univers", orphanRemoval=true)
      */
     private $contentTypes;
 
@@ -53,10 +54,6 @@ class Univers
         $this->userUnivers = new ArrayCollection();
         $this->contents = new ArrayCollection();
         $this->contentTypes = new ArrayCollection();
-    }
-    public function getId(): ?int
-    {
-        return parent::getId();
     }
     public function getName(): ?string
     {

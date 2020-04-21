@@ -4,6 +4,10 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Trait DefaultObject
+ * @package App\Entity
+ */
 trait DefaultObject
 {
     /**
