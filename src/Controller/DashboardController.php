@@ -19,7 +19,6 @@ class DashboardController extends AbstractController
         $user = $security->getUser();
         if($user !== null){
             $userUnivers = $user -> getUserUnivers();
-        
             $universInFav = array();
             foreach($userUnivers as $univers){
                 array_push($universInFav,$univers->getUnivers());
@@ -30,9 +29,7 @@ class DashboardController extends AbstractController
         }
         $universes = $this  ->getDoctrine()
                             ->getRepository(Univers::class)
-                            ->findBy(
-                                ['isPrivate' => false]
-                            );
+                            ->findAll();
         return $this->render('dashboard/index.html.twig', [
             'universes' => $universes,
             'universesInFav' => $universInFav,
