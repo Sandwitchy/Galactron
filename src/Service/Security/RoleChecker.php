@@ -13,7 +13,7 @@ class RoleChecker
      * @param User $user
      * @param Univers $univers
      */
-    public function check(User $user, Univers $univers){
+    public function check(?User $user, Univers $univers){
         if($user !== null){
             return [($univers->getCreator() === $user)? $isCreator = true :  $isCreator = false,$this->checkIfRedactor($user,$univers)];
         }else{
